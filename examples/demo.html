@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EditArray Web Component - Interactive Demo</title>
+    <style>
+        :root {
+            /* Light theme (default) */
+            --primary-color: #3b82f6;
+            --secondary-color: #f3f4f6;
+            --success-color: #10b981;
+            --danger-color: #ef4444;
+            --warning-color: #f59e0b;
+            --text-color: #1f2937;
+            --background-color: #ffffff;
+            --border-color: #e5e7eb;
+            --surface-color: #f9fafb;
+            
+            /* Component-specific CSS custom properties */
+            --button-primary-bg: var(--primary-color);
+            --button-primary-color: #ffffff;
+            --button-primary-hover-bg: #2563eb;
+            --button-secondary-bg: var(--secondary-color);
+            --button-secondary-color: var(--text-color);
+            --button-success-bg: var(--success-color);
+            --button-success-color: #ffffff;
+            --button-danger-bg: var(--danger-color);
+            --button-danger-color: #ffffff;
+            --border-radius: 8px;
+            --spacing-sm: 0.5rem;
+            --spacing-md: 1rem;
+            --spacing-lg: 1.5rem;
+            --transition-duration: 0.2s;
+            --error-color: var(--danger-color);
+        }
+
+        /* Dark theme */
+        [data-theme="dark"] {
+            --primary-color: #60a5fa;
+            --secondary-color: #374151;
+            --success-color: #34d399;
+            --danger-color: #f87171;
+            --warning-color: #fbbf24;
+            --text-color: #f9fafb;
+            --background-color: #111827;
+            --border-color: #4b5563;
+            --surface-color: #1f2937;
+        }
+
+        /* Forest Green theme */
+        [data-theme="forest-green"] {
+            --primary-color: #059669;
+            --secondary-color: #d1fae5;
+            --success-color: #10b981;
+            --danger-color: #dc2626;
+            --warning-color: #d97706;
+            --text-color: #064e3b;
+            --background-color: #ecfdf5;
+            --border-color: #a7f3d0;
+            --surface-color: #f0fdf4;
+        }
+
+        /* Warm Sunset theme */
+        [data-theme="warm-sunset"] {
+            --primary-color: #ea580c;
+            --secondary-color: #fed7aa;
+            --success-color: #65a30d;
+            --danger-color: #dc2626;
+            --warning-color: #d97706;
+            --text-color: #9a3412;
+            --background-color: #fff7ed;
+            --border-color: #fdba74;
+            --surface-color: #ffedd5;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            transition: all var(--transition-duration) ease;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .header h1 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: var(--text-color);
+            opacity: 0.8;
+            font-size: 1.1rem;
+        }
+
+        .theme-selector {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .theme-selector h3 {
+            margin-top: 0;
+            color: var(--primary-color);
+        }
+
+        .theme-options {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .theme-option {
+            padding: 0.5rem 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: var(--border-radius);
+            background: var(--background-color);
+            color: var(--text-color);
+            cursor: pointer;
+            transition: all var(--transition-duration) ease;
+        }
+
+        .theme-option:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .theme-option.active {
+            border-color: var(--primary-color);
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .demo-section {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .demo-section h2 {
+            color: var(--primary-color);
+            margin-top: 0;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 0.5rem;
+        }
+
+        .demo-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .demo-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .theme-options {
+                flex-direction: column;
+            }
+        }
+
+        .demo-controls {
+            background: var(--background-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .demo-controls h4 {
+            margin-top: 0;
+            color: var(--primary-color);
+        }
+
+        .control-group {
+            margin-bottom: 1rem;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 0.25rem;
+            font-weight: 500;
+        }
+
+        .control-group input,
+        .control-group select,
+        .control-group textarea {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background: var(--background-color);
+            color: var(--text-color);
+        }
+
+        .control-group button {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .control-group button:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .code-display {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            overflow-x: auto;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .event-log {
+            background: var(--background-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .event-log h4 {
+            margin-top: 0;
+            color: var(--primary-color);
+        }
+
+        .event-item {
+            padding: 0.5rem;
+            margin-bottom: 0.5rem;
+            background: var(--surface-color);
+            border-left: 3px solid var(--primary-color);
+            border-radius: 0 4px 4px 0;
+            font-size: 0.9rem;
+        }
+
+        .event-timestamp {
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        .example-data-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
+        .example-data-buttons button {
+            background: var(--secondary-color);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .example-data-buttons button:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+    /* Custom styling for ck-edit-array component in demo */
+    ck-edit-array {
+            --button-font-size: 0.875rem;
+            --button-padding: 0.5rem 1rem;
+            --button-border-radius: 6px;
+            --spacing-lg: 1rem;
+            --spacing-md: 0.75rem;
+            --spacing-sm: 0.5rem;
+        }
+
+        /* Demo-specific form styling */
+        .demo-form-group {
+            margin-bottom: 1rem;
+        }
+
+        .demo-form-group label {
+            display: block;
+            margin-bottom: 0.25rem;
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        .demo-form-group input,
+        .demo-form-group select,
+        .demo-form-group textarea {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background: var(--background-color);
+            color: var(--text-color);
+            font-size: 0.9rem;
+        }
+
+        .demo-form-group input:focus,
+        .demo-form-group select:focus,
+        .demo-form-group textarea:focus {
+            outline: 2px solid var(--primary-color);
+            outline-offset: 2px;
+            border-color: var(--primary-color);
+        }
+
+        .performance-metrics {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.25rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .metric:last-child {
+            border-bottom: none;
+        }
+
+        .metric-value {
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>EditArray Web Component</h1>
+            <p>Interactive Demo and Feature Showcase</p>
+            <p style="margin-top: 0.5rem;">
+                <a href="demo-advanced.html">Explore the advanced demo</a>
+            </p>
+        </header>
+
+        <!-- Theme Selector -->
+        <section class="theme-selector">
+            <h3>🎨 Theme Selector</h3>
+            <p>Select a theme to see how the component adapts to different design systems:</p>
+            <div class="theme-options">
+                <div class="theme-option active" data-theme="light">Light Theme</div>
+                <div class="theme-option" data-theme="dark">Dark Theme</div>
+                <div class="theme-option" data-theme="forest-green">Forest Green</div>
+                <div class="theme-option" data-theme="warm-sunset">Warm Sunset</div>
+            </div>
+        </section>
+
+        <!-- Basic Usage Demo -->
+        <section class="demo-section">
+            <h2>📝 Basic Usage - User Management</h2>
+            <div class="demo-grid">
+                <div>
+                    <div class="demo-controls">
+                        <h4>Demo Controls</h4>
+                        <div class="example-data-buttons">
+                            <button onclick="loadExampleData('users')">Load Users</button>
+                            <button onclick="loadExampleData('empty')">Clear Data</button>
+                            <button onclick="loadExampleData('single')">Single User</button>
+                            <button onclick="addRandomUser()">Add Random User</button>
+                        </div>
+                        <div class="control-group">
+                            <label>Array Field Name:</label>
+                            <input type="text" id="arrayField1" value="users" onchange="updateArrayField('demo1', this.value)">
+                        </div>
+                    </div>
+
+                    <ck-edit-array id="demo1" array-field="users">
+                        <div slot="display">
+                            <div class="demo-form-group">
+                                <strong data-display-for="name"></strong>
+                                <div style="color: var(--primary-color); font-size: 0.9rem;">
+                                    📧 <span data-display-for="email"></span>
+                                </div>
+                                <div style="color: var(--text-color); font-size: 0.8rem; opacity: 0.8;">
+                                    👤 <span data-display-for="role"></span> | 🏢 <span data-display-for="department"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div slot="edit">
+                            <div class="demo-form-group">
+                                <label>Full Name *</label>
+                                <input name="name" required placeholder="Enter full name">
+                            </div>
+                            <div class="demo-form-group">
+                                <label>Email Address *</label>
+                                <input name="email" type="email" required placeholder="user@example.com">
+                            </div>
+                            <div class="demo-form-group">
+                                <label>Role</label>
+                                <select name="role">
+                                    <option value="user">User</option>
+                                    <option value="admin">Administrator</option>
+                                    <option value="moderator">Moderator</option>
+                                    <option value="guest">Guest</option>
+                                </select>
+                            </div>
+                            <div class="demo-form-group">
+                                <label>Department</label>
+                                <select name="department">
+                                    <option value="engineering">Engineering</option>
+                                    <option value="marketing">Marketing</option>
+                                    <option value="sales">Sales</option>
+                                    <option value="hr">Human Resources</option>
+                                    <option value="finance">Finance</option>
+                                </select>
+                            </div>
+                        </div>
+                    </ck-edit-array>
+                </div>
+
+                <div>
+                    <div class="event-log">
+                        <h4>📊 Event Log</h4>
+                        <div id="eventLog1"></div>
+                        <button onclick="clearEventLog('eventLog1')" style="margin-top: 0.5rem; font-size: 0.8rem; padding: 0.25rem 0.5rem;">Clear Log</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Advanced Validation Demo -->
+        <section class="demo-section">
+            <h2>✅ Advanced Validation - Contact Information</h2>
+            <div class="demo-grid">
+                <div>
+                    <div class="demo-controls">
+                        <h4>Validation Demo</h4>
+                        <div class="example-data-buttons">
+                            <button onclick="loadValidationData('valid')">Load Valid Data</button>
+                            <button onclick="loadValidationData('invalid')">Load Invalid Data</button>
+                            <button onclick="loadValidationData('mixed')">Load Mixed Data</button>
+                        </div>
+                    </div>
+
+                    <ck-edit-array id="demo2" array-field="contacts">
+                        <div slot="display">
+                            <div class="demo-form-group">
+                                <strong data-display-for="firstName"></strong> <span data-display-for="lastName"></span>
+                                <div style="font-size: 0.9rem; color: var(--primary-color);">
+                                    📞 <span data-display-for="phone"></span>
+                                </div>
+                                <div style="font-size: 0.9rem; color: var(--primary-color);">
+                                    🌐 <span data-display-for="website"></span>
+                                </div>
+                                <div style="font-size: 0.8rem; opacity: 0.8;">
+                                    📮 <span data-display-for="zipCode"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div slot="edit">
+                            <div class="demo-form-group">
+                                <label>First Name *</label>
+                                <input name="firstName" required pattern="[A-Za-z]{2,}" placeholder="John">
+                            </div>
+                            <div class="demo-form-group">
+                                <label>Last Name *</label>
+                                <input name="lastName" required pattern="[A-Za-z]{2,}" placeholder="Doe">
+                            </div>
+                            <div class="demo-form-group">
+                                <label>Phone Number *</label>
+                                <input name="phone" required pattern="\\([0-9]{3}\\) [0-9]{3}-[0-9]{4}" placeholder="(555) 123-4567">
+                            </div>
+                            <div class="demo-form-group">
+                                <label>Website</label>
+                                <input name="website" type="url" placeholder="https://example.com">
+                            </div>
+                            <div class="demo-form-group">
+                                <label>ZIP Code</label>
+                                <input name="zipCode" pattern="[0-9]{5}(-[0-9]{4})?" placeholder="12345 or 12345-6789">
+                            </div>
+                        </div>
+                    </ck-edit-array>
+                </div>
+
+                <div>
+                    <div class="event-log">
+                        <h4>🔍 Validation Log</h4>
+                        <div id="eventLog2"></div>
+                        <button onclick="clearEventLog('eventLog2')" style="margin-top: 0.5rem; font-size: 0.8rem; padding: 0.25rem 0.5rem;">Clear Log</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Performance Demo -->
+        <section class="demo-section">
+            <h2>⚡ Performance Demo - Large Dataset</h2>
+            <div class="demo-grid">
+                <div>
+                    <div class="demo-controls">
+                        <h4>Performance Testing</h4>
+                        <div class="control-group">
+                            <label>Number of Items:</label>
+                            <select id="itemCount" onchange="updateItemCount()">
+                                <option value="10">10 Items</option>
+                                <option value="50">50 Items</option>
+                                <option value="100" selected>100 Items</option>
+                                <option value="200">200 Items</option>
+                                <option value="500">500 Items</option>
+                            </select>
+                        </div>
+                        <div class="example-data-buttons">
+                            <button onclick="generateLargeDataset()">Generate Dataset</button>
+                            <button onclick="measurePerformance()">Measure Performance</button>
+                            <button onclick="stressTest()">Stress Test</button>
+                        </div>
+                    </div>
+
+                    <ck-edit-array id="demo3" array-field="items">
+                        <div slot="display">
+                            <div class="demo-form-group" style="font-size: 0.9rem;">
+                                #<span data-display-for="id"></span> - <strong data-display-for="title"></strong>
+                                <div style="color: var(--primary-color); font-size: 0.8rem;">
+                                    💰 $<span data-display-for="price"></span> | 📦 <span data-display-for="category"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div slot="edit">
+                            <div class="demo-form-group">
+                                <label>ID</label>
+                                <input name="id" type="number" readonly>
+                            </div>
+                            <div class="demo-form-group">
+                                <label>Title *</label>
+                                <input name="title" required placeholder="Product title">
+                            </div>
+                            <div class="demo-form-group">
+                                <label>Price *</label>
+                                <input name="price" type="number" step="0.01" required placeholder="29.99">
+                            </div>
+                            <div class="demo-form-group">
+                                <label>Category</label>
+                                <select name="category">
+                                    <option value="electronics">Electronics</option>
+                                    <option value="clothing">Clothing</option>
+                                    <option value="books">Books</option>
+                                    <option value="home">Home & Garden</option>
+                                    <option value="sports">Sports</option>
+                                </select>
+                            </div>
+                        </div>
+                    </ck-edit-array>
+                </div>
+
+                <div>
+                    <div class="performance-metrics">
+                        <h4>📈 Performance Metrics</h4>
+                        <div class="metric">
+                            <span>Render Time:</span>
+                            <span class="metric-value" id="renderTime">-</span>
+                        </div>
+                        <div class="metric">
+                            <span>Items Count:</span>
+                            <span class="metric-value" id="itemsCount">0</span>
+                        </div>
+                        <div class="metric">
+                            <span>DOM Nodes:</span>
+                            <span class="metric-value" id="domNodes">-</span>
+                        </div>
+                        <div class="metric">
+                            <span>Memory Usage:</span>
+                            <span class="metric-value" id="memoryUsage">-</span>
+                        </div>
+                    </div>
+                    
+                    <div class="event-log" style="margin-top: 1rem;">
+                        <h4>⚡ Performance Log</h4>
+                        <div id="eventLog3"></div>
+                        <button onclick="clearEventLog('eventLog3')" style="margin-top: 0.5rem; font-size: 0.8rem; padding: 0.25rem 0.5rem;">Clear Log</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Integration Example -->
+        <section class="demo-section">
+            <h2>🔗 Framework Integration - Form Submission</h2>
+            <form id="demoForm" onsubmit="handleFormSubmit(event)">
+                <div class="demo-grid">
+                    <div>
+                        <div class="demo-form-group">
+                            <label>Project Name *</label>
+                            <input name="projectName" required placeholder="My Awesome Project">
+                        </div>
+                        
+                        <div class="demo-form-group">
+                            <label>Description</label>
+                            <textarea name="description" rows="3" placeholder="Project description..."></textarea>
+                        </div>
+
+                        <h4>Team Members</h4>
+                        <ck-edit-array id="demo4" array-field="teamMembers">
+                            <div slot="display">
+                                <div class="demo-form-group">
+                                    <strong data-display-for="memberName"></strong>
+                                    <div style="font-size: 0.9rem; color: var(--primary-color);">
+                                        📧 <span data-display-for="memberEmail"></span>
+                                    </div>
+                                    <div style="font-size: 0.8rem; opacity: 0.8;">
+                                        🎯 <span data-display-for="memberRole"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div slot="edit">
+                                <div class="demo-form-group">
+                                    <label>Member Name *</label>
+                                    <input name="memberName" required placeholder="Team member name">
+                                </div>
+                                <div class="demo-form-group">
+                                    <label>Email *</label>
+                                    <input name="memberEmail" type="email" required placeholder="member@example.com">
+                                </div>
+                                <div class="demo-form-group">
+                                    <label>Role</label>
+                                    <select name="memberRole">
+                                        <option value="developer">Developer</option>
+                                        <option value="designer">Designer</option>
+                                        <option value="manager">Project Manager</option>
+                                        <option value="tester">QA Tester</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </ck-edit-array>
+
+                        <div style="margin-top: 1rem;">
+                            <button type="button" onclick="loadTeamData()" style="margin-right: 0.5rem;">Load Sample Team</button>
+                            <button type="submit" style="background: var(--success-color);">Submit Form</button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="code-display">
+                            <h4 style="color: #569cd6; margin-top: 0;">Form Data Preview</h4>
+                            <pre id="formDataPreview">Submit the form to see serialized data...</pre>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </section>
+
+        <!-- Code Examples -->
+        <section class="demo-section">
+            <h2>💻 Code Examples</h2>
+            <div class="demo-grid">
+                <div>
+                    <h4>Basic HTML Usage</h4>
+                    <div class="code-display">
+                    <pre>&lt;ck-edit-array array-field="users" data='[{"name":"John","email":"john@example.com"}]'&gt;
+  &lt;div slot="display"&gt;
+    &lt;span data-display-for="name"&gt;&lt;/span&gt; - 
+    &lt;span data-display-for="email"&gt;&lt;/span&gt;
+  &lt;/div&gt;
+  &lt;div slot="edit"&gt;
+    &lt;input name="name" required&gt;
+    &lt;input name="email" type="email" required&gt;
+  &lt;/div&gt;
+&lt;/edit-array&gt;</pre>
+                    </div>
+                </div>
+
+                <div>
+                    <h4>JavaScript API Usage</h4>
+                    <div class="code-display">
+                    <pre>const editArray = document.querySelector('ck-edit-array');
+
+// Set data programmatically
+editArray.data = [
+  { name: 'John', email: 'john@example.com' },
+  { name: 'Jane', email: 'jane@example.com' }
+];
+
+// Listen for changes
+editArray.addEventListener('change', (event) =&gt; {
+  console.log('Data changed:', event.detail.data);
+});
+
+// Add new item
+editArray.addItem({ name: 'New User', email: 'new@example.com' });
+
+// Update existing item
+editArray.updateItem(0, 'name', 'John Doe');</pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Import the EditArray component -->
+    <script type="module" src="../src/ck-edit-array.js"></script>
+
+    <script>
+        // Theme management
+        function applyTheme(themeName) {
+            document.documentElement.setAttribute('data-theme', themeName);
+            
+            // Update active theme option
+            document.querySelectorAll('.theme-option').forEach(option => {
+                option.classList.toggle('active', option.dataset.theme === themeName);
+            });
+        }
+
+        // Theme selector event listeners
+        document.querySelectorAll('.theme-option').forEach(option => {
+            option.addEventListener('click', () => {
+                applyTheme(option.dataset.theme);
+            });
+        });
+
+        // Event logging functionality
+        function logEvent(logId, eventType, detail) {
+            const logElement = document.getElementById(logId);
+            const timestamp = new Date().toLocaleTimeString();
+            const eventItem = document.createElement('div');
+            eventItem.className = 'event-item';
+            eventItem.innerHTML = `
+                <span class="event-timestamp">${timestamp}</span> - 
+                <strong>${eventType}</strong>: ${JSON.stringify(detail, null, 2)}
+            `;
+            logElement.insertBefore(eventItem, logElement.firstChild);
+            
+            // Keep only last 10 events
+            while (logElement.children.length > 10) {
+                logElement.removeChild(logElement.lastChild);
+            }
+        }
+
+        function clearEventLog(logId) {
+            document.getElementById(logId).innerHTML = '';
+        }
+
+        // Set up event listeners for all demos
+        function setupEventListeners() {
+            const demos = ['demo1', 'demo2', 'demo3', 'demo4'];
+            
+            demos.forEach((demoId, index) => {
+                const demo = document.getElementById(demoId);
+                const logId = `eventLog${index + 1}`;
+                
+                demo.addEventListener('change', (e) => {
+                    logEvent(logId, 'Data Changed', { itemCount: e.detail.data.length });
+                });
+                
+                demo.addEventListener('item-added', (e) => {
+                    logEvent(logId, 'Item Added', { index: e.detail.index, item: e.detail.item });
+                });
+                
+                demo.addEventListener('item-updated', (e) => {
+                    logEvent(logId, 'Item Updated', { 
+                        index: e.detail.index, 
+                        field: e.detail.fieldName, 
+                        value: e.detail.value 
+                    });
+                });
+                
+                demo.addEventListener('item-deleted', (e) => {
+                    logEvent(logId, 'Item Deleted', { index: e.detail.index });
+                });
+                
+                demo.addEventListener('item-change', (e) => {
+                    logEvent(logId, 'Item State Changed', { 
+                        index: e.detail.index, 
+                        action: e.detail.action, 
+                        marked: e.detail.marked 
+                    });
+                });
+            });
+        }
+
+        // Example data functions
+        function loadExampleData(type) {
+            const demo1 = document.getElementById('demo1');
+            
+            switch (type) {
+                case 'users':
+                    demo1.data = [
+                        { name: 'John Doe', email: 'john@example.com', role: 'admin', department: 'engineering' },
+                        { name: 'Jane Smith', email: 'jane@example.com', role: 'user', department: 'marketing' },
+                        { name: 'Bob Johnson', email: 'bob@example.com', role: 'moderator', department: 'sales' }
+                    ];
+                    break;
+                case 'single':
+                    demo1.data = [
+                        { name: 'Alice Cooper', email: 'alice@example.com', role: 'user', department: 'hr' }
+                    ];
+                    break;
+                case 'empty':
+                default:
+                    demo1.data = [];
+                    break;
+            }
+        }
+
+        function addRandomUser() {
+            const demo1 = document.getElementById('demo1');
+            const names = ['Alex', 'Sam', 'Jordan', 'Casey', 'Morgan', 'Taylor'];
+            const domains = ['example.com', 'test.org', 'demo.net'];
+            const roles = ['user', 'admin', 'moderator', 'guest'];
+            const departments = ['engineering', 'marketing', 'sales', 'hr', 'finance'];
+            
+            const randomName = names[Math.floor(Math.random() * names.length)];
+            const randomDomain = domains[Math.floor(Math.random() * domains.length)];
+            const randomRole = roles[Math.floor(Math.random() * roles.length)];
+            const randomDept = departments[Math.floor(Math.random() * departments.length)];
+            
+            demo1.addItem({
+                name: randomName + ' User',
+                email: `${randomName.toLowerCase()}@${randomDomain}`,
+                role: randomRole,
+                department: randomDept
+            });
+        }
+
+        function updateArrayField(demoId, value) {
+            document.getElementById(demoId).arrayField = value;
+        }
+
+        // Validation demo functions
+        function loadValidationData(type) {
+            const demo2 = document.getElementById('demo2');
+            
+            switch (type) {
+                case 'valid':
+                    demo2.data = [
+                        { firstName: 'John', lastName: 'Doe', phone: '(555) 123-4567', website: 'https://johndoe.com', zipCode: '12345' },
+                        { firstName: 'Jane', lastName: 'Smith', phone: '(555) 987-6543', website: 'https://janesmith.org', zipCode: '54321-9876' }
+                    ];
+                    break;
+                case 'invalid':
+                    demo2.data = [
+                        { firstName: 'J', lastName: 'D', phone: '555-1234', website: 'not-a-url', zipCode: 'invalid' },
+                        { firstName: '', lastName: '', phone: '', website: '', zipCode: '' }
+                    ];
+                    break;
+                case 'mixed':
+                    demo2.data = [
+                        { firstName: 'John', lastName: 'Doe', phone: '(555) 123-4567', website: 'https://valid.com', zipCode: '12345' },
+                        { firstName: 'X', lastName: 'Y', phone: 'invalid', website: 'bad-url', zipCode: 'bad-zip' }
+                    ];
+                    break;
+            }
+        }
+
+        // Performance demo functions
+        function updateItemCount() {
+            const count = document.getElementById('itemCount').value;
+            document.getElementById('itemsCount').textContent = count;
+        }
+
+        function generateLargeDataset() {
+            const count = parseInt(document.getElementById('itemCount').value);
+            const demo3 = document.getElementById('demo3');
+            const categories = ['electronics', 'clothing', 'books', 'home', 'sports'];
+            
+            const startTime = performance.now();
+            
+            const data = Array.from({ length: count }, (_, i) => ({
+                id: i + 1,
+                title: `Product ${i + 1}`,
+                price: (Math.random() * 100 + 10).toFixed(2),
+                category: categories[Math.floor(Math.random() * categories.length)]
+            }));
+            
+            demo3.data = data;
+            
+            const endTime = performance.now();
+            const renderTime = (endTime - startTime).toFixed(2);
+            
+            document.getElementById('renderTime').textContent = `${renderTime}ms`;
+            document.getElementById('itemsCount').textContent = count;
+            
+            updateDOMNodeCount();
+            updateMemoryUsage();
+            
+            logEvent('eventLog3', 'Dataset Generated', { count, renderTime: `${renderTime}ms` });
+        }
+
+        function measurePerformance() {
+            const demo3 = document.getElementById('demo3');
+            const data = demo3.data;
+            
+            const measurements = [];
+            
+            // Measure multiple operations
+            for (let i = 0; i < 5; i++) {
+                const start = performance.now();
+                demo3.data = [...data]; // Force re-render
+                const end = performance.now();
+                measurements.push(end - start);
+            }
+            
+            const avgTime = (measurements.reduce((a, b) => a + b, 0) / measurements.length).toFixed(2);
+            const minTime = Math.min(...measurements).toFixed(2);
+            const maxTime = Math.max(...measurements).toFixed(2);
+            
+            logEvent('eventLog3', 'Performance Measured', { 
+                average: `${avgTime}ms`, 
+                min: `${minTime}ms`, 
+                max: `${maxTime}ms` 
+            });
+        }
+
+        function stressTest() {
+            const demo3 = document.getElementById('demo3');
+            const startTime = performance.now();
+            
+            // Rapid updates
+            for (let i = 0; i < 50; i++) {
+                demo3.updateItem(i % 10, 'title', `Stress Test ${i}`);
+            }
+            
+            const endTime = performance.now();
+            const duration = (endTime - startTime).toFixed(2);
+            
+            logEvent('eventLog3', 'Stress Test Completed', { 
+                operations: 50, 
+                duration: `${duration}ms`,
+                opsPerSecond: (50 / (duration / 1000)).toFixed(0)
+            });
+        }
+
+        function updateDOMNodeCount() {
+            const demo3 = document.getElementById('demo3');
+            const nodeCount = demo3.shadowRoot.querySelectorAll('*').length;
+            document.getElementById('domNodes').textContent = nodeCount;
+        }
+
+        function updateMemoryUsage() {
+            if (performance.memory) {
+                const used = Math.round(performance.memory.usedJSHeapSize / 1024 / 1024);
+                document.getElementById('memoryUsage').textContent = `${used}MB`;
+            } else {
+                document.getElementById('memoryUsage').textContent = 'N/A';
+            }
+        }
+
+        // Form integration functions
+        function loadTeamData() {
+            const demo4 = document.getElementById('demo4');
+            demo4.data = [
+                { memberName: 'Sarah Johnson', memberEmail: 'sarah@company.com', memberRole: 'manager' },
+                { memberName: 'Mike Chen', memberEmail: 'mike@company.com', memberRole: 'developer' },
+                { memberName: 'Lisa Rodriguez', memberEmail: 'lisa@company.com', memberRole: 'designer' }
+            ];
+        }
+
+        function handleFormSubmit(event) {
+            event.preventDefault();
+            
+            const formData = new FormData(event.target);
+            const data = {};
+            
+            // Convert FormData to regular object
+            for (let [key, value] of formData.entries()) {
+                if (key.includes('[') && key.includes(']')) {
+                    // Handle array field notation
+                    const parts = key.split(/[\[\]\.]+/).filter(Boolean);
+                    let current = data;
+                    
+                    for (let i = 0; i < parts.length - 1; i++) {
+                        const part = parts[i];
+                        if (!current[part]) {
+                            current[part] = isNaN(parts[i + 1]) ? {} : [];
+                        }
+                        current = current[part];
+                    }
+                    
+                    const lastPart = parts[parts.length - 1];
+                    current[lastPart] = value;
+                } else {
+                    data[key] = value;
+                }
+            }
+            
+            document.getElementById('formDataPreview').textContent = JSON.stringify(data, null, 2);
+        }
+
+        // Initialize the demo
+        document.addEventListener('DOMContentLoaded', () => {
+            setupEventListeners();
+            loadExampleData('users');
+            generateLargeDataset();
+            updateItemCount();
+        });
+    </script>
+</body>
+</html>
