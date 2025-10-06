@@ -1,5 +1,5 @@
 {
-  "name": "@ck-templates/edit-array",
+  "name": "@colmkenna/ck-edit-array",
   "version": "1.0.0",
   "description": "A web component for editing arrays of structured data with inline editing, validation, and accessibility features.",
   "type": "module",
@@ -26,7 +26,7 @@
   "scripts": {
     "clean": "rimraf dist",
     "build:types": "npm run build:ts",
-    
+
     "prebuild": "npm run clean",
     "build": "rollup -c --environment NODE_ENV:production",
     "build:watch": "rollup -c --watch",
@@ -168,7 +168,7 @@
   },
   "funding": {
     "type": "github",
-    "url": "https://github.com/sponsors/yourusername"
+    "url": "https://github.com/sponsors/colmkenna"
   },
   "publishConfig": {
     "access": "public",
