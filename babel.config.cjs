@@ -9,6 +9,7 @@ module.exports = {
         modules: 'auto',
       },
     ],
+    '@babel/preset-typescript',
   ],
   env: {
     test: {
@@ -22,6 +23,7 @@ module.exports = {
             modules: 'commonjs',
           },
         ],
+        '@babel/preset-typescript',
       ],
     },
   },

@@ -5,27 +5,29 @@ module.exports = {
   
   // Setup files
   setupFilesAfterEnv: ['<rootDir>/tests/setup.js'],
-  setupFiles: ['<rootDir>/tests/env.js'],
+  setupFiles: ['<rootDir>/tests/env.js','<rootDir>/tests/setup.js'],
   
   // Test file patterns
   testMatch: [
     '<rootDir>/tests/**/*.test.js',
+    '<rootDir>/tests/**/*.test.ts',
     '<rootDir>/tests/**/*.spec.js',
+    '<rootDir>/tests/**/*.spec.ts',
   ],
   
   // Module resolution
-  moduleFileExtensions: ['js', 'json'],
+  moduleFileExtensions: ['js', 'ts', 'json'],
   moduleDirectories: ['node_modules', 'src'],
   
   // Transform configuration
   transform: {
-    '^.+\\.js$': 'babel-jest',
+    '^.+\\.(js|ts)$': 'babel-jest',
   },
   
   // Coverage configuration
   collectCoverage: true,
   collectCoverageFrom: [
-    'src/**/*.js',
+    'src/**/*.{js,ts}',
     '!src/**/*.d.ts',
     '!src/edit-array.js',
     '!src/**/*.config.js',

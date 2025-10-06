@@ -7,17 +7,20 @@ const isProduction = process.env.NODE_ENV === 'production';
 
 // Base configuration shared between builds
 const baseConfig = {
-  input: 'src/ck-edit-array.js',
+  input: 'src/ck-edit-array.ts',
   external: [], // No external dependencies
   plugins: [
     nodeResolve({
       browser: true,
       preferBuiltins: false,
+      extensions: ['.js', '.ts'],
     }),
     babel({
       babelHelpers: 'bundled',
       exclude: 'node_modules/**',
+      extensions: ['.js', '.ts'],
       presets: [
+        '@babel/preset-typescript',
         [
           '@babel/preset-env',
           {
@@ -30,8 +33,6 @@ const baseConfig = {
               ],
             },
             modules: false, // Let Rollup handle modules
-            useBuiltIns: 'usage',
-            corejs: 3,
           },
         ],
       ],

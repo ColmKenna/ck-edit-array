@@ -1,16 +1,9 @@
-// Jest test setup for EditArray web component
-// This file runs before each test file
-
-// Import the component for testing
-import '../src/ck-edit-array.js';
-
-// Polyfills for JSDOM environment
 global.CSSStyleSheet = global.CSSStyleSheet || class CSSStyleSheet {
   constructor() {
     this.cssRules = [];
   }
   
-  replaceSync(css) {
+  replaceSync() {
     // Mock implementation
   }
   
@@ -35,11 +28,11 @@ if (!document.documentElement.attachShadow) {
     
     // Mock shadow DOM methods
     shadowRoot.querySelector = function(selector) {
-      return this.querySelector.call(this, selector);
+      return this.querySelector(this, selector);
     }.bind(shadowRoot);
     
     shadowRoot.querySelectorAll = function(selector) {
-      return this.querySelectorAll.call(this, selector);
+      return this.querySelectorAll(this, selector);
     }.bind(shadowRoot);
     
     this.shadowRoot = shadowRoot;
@@ -47,63 +40,67 @@ if (!document.documentElement.attachShadow) {
   };
 }
 
-// Custom matchers for EditArray testing
-expect.extend({
-  toHaveValidStructure(received) {
-    const pass = received && 
-                 received.shadowRoot && 
-                 received.shadowRoot.querySelector('.edit-array-container');
-    
-    return {
-      message: () => 
-        pass 
-          ? `Expected element to not have valid EditArray structure`
-          : `Expected element to have valid EditArray structure with shadow DOM and container`,
-      pass,
-    };
-  },
-  
-  toHaveItems(received, expectedCount) {
-    const items = received.shadowRoot?.querySelectorAll('.edit-array-item') || [];
-    const pass = items.length === expectedCount;
-    
-    return {
-      message: () => 
-        pass
-          ? `Expected element to not have ${expectedCount} items`
-          : `Expected element to have ${expectedCount} items, but found ${items.length}`,
-      pass,
-    };
-  },
-  
-  toBeInEditMode(received, index) {
-    const item = received.shadowRoot?.querySelector(`[data-index="${index}"]`);
-    const isEditing = item?.classList.contains('editing') || 
-                     item?.querySelector('input, select, textarea') !== null;
-    
-    return {
-      message: () => 
-        isEditing
-          ? `Expected item at index ${index} to not be in edit mode`
-          : `Expected item at index ${index} to be in edit mode`,
-      pass: isEditing,
-    };
-  },
-  
-  toHaveValidationError(received, fieldName) {
-    const input = received.shadowRoot?.querySelector(`[name="${fieldName}"]`);
-    const hasError = input?.classList.contains('invalid') || 
-                    input?.getAttribute('aria-invalid') === 'true';
-    
-    return {
-      message: () =>
-        hasError
-          ? `Expected field "${fieldName}" to not have validation error`
-          : `Expected field "${fieldName}" to have validation error`,
-      pass: hasError,
-    };
-  },
-});
+// Custom matchers for EditArray testing - will be available after Jest setup
+global.setupCustomMatchers = () => {
+  if (typeof expect !== 'undefined') {
+    expect.extend({
+      toHaveValidStructure(received) {
+        const pass = received && 
+                     received.shadowRoot && 
+                     received.shadowRoot.querySelector('.edit-array-container');
+        
+        return {
+          message: () => 
+            (pass 
+              ? `Expected element to not have valid EditArray structure`
+              : `Expected element to have valid EditArray structure with shadow DOM and container`),
+          pass,
+        };
+      },
+      
+      toHaveItems(received, expectedCount) {
+        const items = received.shadowRoot?.querySelectorAll('.edit-array-item') || [];
+        const pass = items.length === expectedCount;
+        
+        return {
+          message: () => 
+            (pass
+              ? `Expected element to not have ${expectedCount} items`
+              : `Expected element to have ${expectedCount} items, but found ${items.length}`),
+          pass,
+        };
+      },
+      
+      toBeInEditMode(received, index) {
+        const item = received.shadowRoot?.querySelector(`[data-index="${index}"]`);
+        const isEditing = item?.classList.contains('editing') || 
+                         item?.querySelector('input, select, textarea') !== null;
+        
+        return {
+          message: () => 
+            (isEditing
+              ? `Expected item at index ${index} to not be in edit mode`
+              : `Expected item at index ${index} to be in edit mode`),
+          pass: isEditing,
+        };
+      },
+      
+      toHaveValidationError(received, fieldName) {
+        const input = received.shadowRoot?.querySelector(`[name="${fieldName}"]`);
+        const hasError = input?.classList.contains('invalid') || 
+                        input?.getAttribute('aria-invalid') === 'true';
+        
+        return {
+          message: () =>
+            (hasError
+              ? `Expected field "${fieldName}" to not have validation error`
+              : `Expected field "${fieldName}" to have validation error`),
+          pass: hasError,
+        };
+      },
+    });
+  }
+};
 
 // Helper functions for testing
 global.createEditArray = (options = {}) => {
@@ -228,44 +225,10 @@ global.simulateKeyboardNavigation = (element, keys) => {
   });
 };
 
-// Console monitoring for tests
-global.consoleWarnSpy = null;
-global.consoleErrorSpy = null;
-
-beforeEach(() => {
-  // Clear any existing components
-  document.body.innerHTML = '';
-  
-  // Set up console spies
-  global.consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
-  global.consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-});
-
-afterEach(() => {
-  // Clean up components
-  document.body.innerHTML = '';
-  
-  // Restore console
-  if (global.consoleWarnSpy) {
-    global.consoleWarnSpy.mockRestore();
-  }
-  if (global.consoleErrorSpy) {
-    global.consoleErrorSpy.mockRestore();
-  }
-  
-  // Clear any timeouts or intervals
-  jest.clearAllTimers();
-});
+// Console monitoring utilities for tests
+global.createConsoleSpy = (method = 'warn') => {
+  return jest.spyOn(console, method).mockImplementation(() => {});
+};
 
 // Global test configuration
 jest.setTimeout(10000);
-
-// Suppress specific warnings during tests
-const originalWarn = console.warn;
-console.warn = (...args) => {
-  if (args[0]?.includes && args[0].includes('EditArray: Missing')) {
-    // Suppress warnings about missing templates in tests where that's expected
-    return;
-  }
-  originalWarn.apply(console, args);
-};

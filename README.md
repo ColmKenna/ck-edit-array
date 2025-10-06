@@ -315,6 +315,25 @@ edit-array/
 └── coverage/                  # Test coverage reports
 ```
 
+
+## 🚀 Publishing & Prepare Steps
+
+This package uses a `prepare`/`prepublishOnly` script to ensure all code is built, type declarations are generated, and tests/linting pass before publishing to npm.
+
+**Publish flow:**
+
+1. Run `npm run validate` to lint, check formatting, and run all tests.
+2. Run `npm run build` to bundle the code and generate type declarations in `dist/`.
+3. The `prepublishOnly` script (see `package.json`) will automatically run validation and build steps before `npm publish`.
+4. To publish:
+  ```bash
+  npm publish
+  ```
+  This will ensure the package is fully built and validated, and that `dist/ck-edit-array.d.ts` is included for consumers.
+
+**Note:** If you add new TypeScript files or change the build process, make sure `dist/ck-edit-array.d.ts` is present after build. The `prepare`/`prepublishOnly` scripts enforce this for you.
+
+---
 ## 🤝 Contributing
 
 We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
