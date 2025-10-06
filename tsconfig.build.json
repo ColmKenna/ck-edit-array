@@ -5,8 +5,9 @@
     "declarationMap": true,
     "emitDeclarationOnly": true,
     "outDir": "dist",
+    "declarationDir": "dist",
     "skipLibCheck": true,
-    "incremental": true
+    "incremental": false
   },
-  "include": ["src/**/*"]
+  "include": ["src/ck-edit-array.ts", "src/**/*.d.ts"]
 }

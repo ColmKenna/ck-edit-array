@@ -23,5 +23,3 @@ jobs:
         run: npm run build:ts
       - name: Run tests
         run: npm test -- --ci --runInBand
-      - name: Build types
-        run: npm run build:types
