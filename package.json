@@ -41,7 +41,7 @@
     "docs": "typedoc src/ck-edit-array.ts --out docs/api",
     "serve": "npx serve examples -p 3001",
     "demo": "npx serve examples -p 3001",
-    "prepare": "npm run build:types",
+    "prepare": "npm run build:ts",
     "prepublishOnly": "npm run build && npm run build:types"
   },
   "keywords": [
