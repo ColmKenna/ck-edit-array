@@ -28,7 +28,7 @@
     "prebuild": "npm run clean",
     "build": "rollup -c --environment NODE_ENV:production",
     "build:watch": "rollup -c --watch",
-    "build:types": "tsc -p tsconfig.build.json",
+    "build:ts": "tsc -p tsconfig.build.json",
     "lint": "eslint src/ tests/ --ext .ts,.js",
     "lint:fix": "eslint src/ tests/ --ext .ts,.js --fix",
     "format": "prettier --write \"src/**/*.{ts,js}\" \"tests/**/*.{ts,js}\" \"docs/**/*.md\"",
