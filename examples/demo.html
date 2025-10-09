@@ -486,6 +486,116 @@
         </div>
       </section>
 
+      <!-- Item Direction Demo -->
+      <section class="demo-section">
+        <h2>📐 Item Direction Layout - Product Catalog</h2>
+        <p>Compare <strong>column</strong> (default stacked) vs <strong>row</strong> (horizontal) layouts. The row layout places content and action buttons side-by-side for a more compact display.</p>
+        <div class="demo-grid">
+          <div>
+            <div class="demo-controls">
+              <h4>Layout Controls</h4>
+              <div class="control-group">
+                <label>Item Direction:</label>
+                <select id="itemDirectionDemo" onchange="updateItemDirectionDemo(this.value)">
+                  <option value="column" selected>Column (stacked)</option>
+                  <option value="row">Row (horizontal)</option>
+                </select>
+              </div>
+              <div class="example-data-buttons">
+                <button onclick="loadProductData('sample')">Load Sample Products</button>
+                <button onclick="loadProductData('empty')">Clear Products</button>
+                <button onclick="addRandomProduct()">Add Random Product</button>
+              </div>
+            </div>
+
+            <ck-edit-array id="demoDirection" array-field="products" item-direction="column">
+              <div slot="display">
+                <div class="demo-form-group">
+                  <strong data-display-for="name"></strong>
+                  <div style="color: var(--success-color); font-weight: bold; font-size: 1.1rem">
+                    💰 $<span data-display-for="price"></span>
+                  </div>
+                  <div style="color: var(--primary-color); font-size: 0.9rem">
+                    📦 <span data-display-for="category"></span> | ⭐ <span data-display-for="rating"></span>/5
+                  </div>
+                  <div style="font-size: 0.8rem; opacity: 0.8; margin-top: 0.25rem">
+                    📝 <span data-display-for="description"></span>
+                  </div>
+                </div>
+              </div>
+              <div slot="edit">
+                <div class="demo-form-group">
+                  <label>Product Name *</label>
+                  <input name="name" required placeholder="Enter product name" />
+                </div>
+                <div class="demo-form-group">
+                  <label>Price *</label>
+                  <input name="price" type="number" step="0.01" required placeholder="29.99" />
+                </div>
+                <div class="demo-form-group">
+                  <label>Category</label>
+                  <select name="category">
+                    <option value="electronics">Electronics</option>
+                    <option value="clothing">Clothing</option>
+                    <option value="books">Books</option>
+                    <option value="home">Home & Garden</option>
+                    <option value="sports">Sports & Outdoors</option>
+                  </select>
+                </div>
+                <div class="demo-form-group">
+                  <label>Rating</label>
+                  <select name="rating">
+                    <option value="5">⭐⭐⭐⭐⭐ (5)</option>
+                    <option value="4">⭐⭐⭐⭐ (4)</option>
+                    <option value="3">⭐⭐⭐ (3)</option>
+                    <option value="2">⭐⭐ (2)</option>
+                    <option value="1">⭐ (1)</option>
+                  </select>
+                </div>
+                <div class="demo-form-group">
+                  <label>Description</label>
+                  <textarea name="description" rows="2" placeholder="Brief product description"></textarea>
+                </div>
+              </div>
+            </ck-edit-array>
+          </div>
+
+          <div>
+            <div style="background: var(--surface-color); border: 1px solid var(--border-color); border-radius: var(--border-radius); padding: 1rem; margin-bottom: 1rem;">
+              <h4 style="margin-top: 0; color: var(--primary-color)">💡 Layout Comparison</h4>
+              <div style="font-size: 0.9rem; line-height: 1.5;">
+                <p><strong>Column Layout (default):</strong></p>
+                <ul style="margin: 0.5rem 0; padding-left: 1.5rem;">
+                  <li>Content stacked vertically</li>
+                  <li>Action buttons below content</li>
+                  <li>Better for detailed information</li>
+                  <li>More space for form fields</li>
+                </ul>
+                
+                <p><strong>Row Layout:</strong></p>
+                <ul style="margin: 0.5rem 0; padding-left: 1.5rem;">
+                  <li>Content and buttons side-by-side</li>
+                  <li>More compact display</li>
+                  <li>Better for lists and tables</li>
+                  <li>Efficient use of horizontal space</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="event-log">
+              <h4>📊 Direction Demo Log</h4>
+              <div id="eventLogDirection"></div>
+              <button
+                onclick="clearEventLog('eventLogDirection')"
+                style="margin-top: 0.5rem; font-size: 0.8rem; padding: 0.25rem 0.5rem"
+              >
+                Clear Log
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <!-- Advanced Validation Demo -->
       <section class="demo-section">
         <h2>✅ Advanced Validation - Contact Information</h2>
@@ -842,13 +952,80 @@ editArray.restoreLabel = 'Undo Delete';</pre
         document.getElementById(logId).innerHTML = '';
       }
 
+      // Item Direction Demo Functions
+      function updateItemDirectionDemo(direction) {
+        const demo = document.getElementById('demoDirection');
+        demo.itemDirection = direction;
+        logEvent('eventLogDirection', 'Layout Changed', { direction });
+      }
+
+      function loadProductData(type) {
+        const demo = document.getElementById('demoDirection');
+        let data = [];
+
+        switch (type) {
+          case 'sample':
+            data = [
+              {
+                name: 'Wireless Headphones',
+                price: 89.99,
+                category: 'electronics',
+                rating: '4',
+                description: 'High-quality wireless headphones with noise cancellation'
+              },
+              {
+                name: 'Cotton T-Shirt',
+                price: 24.99,
+                category: 'clothing',
+                rating: '5',
+                description: 'Comfortable 100% cotton t-shirt in various colors'
+              },
+              {
+                name: 'JavaScript Guide',
+                price: 39.99,
+                category: 'books',
+                rating: '5',
+                description: 'Complete guide to modern JavaScript development'
+              }
+            ];
+            break;
+          case 'empty':
+            data = [];
+            break;
+        }
+
+        demo.data = data;
+        logEvent('eventLogDirection', 'Data Loaded', { type, itemCount: data.length });
+      }
+
+      function addRandomProduct() {
+        const demo = document.getElementById('demoDirection');
+        const categories = ['electronics', 'clothing', 'books', 'home', 'sports'];
+        const names = [
+          'Smart Watch', 'Bluetooth Speaker', 'Running Shoes', 'Coffee Maker',
+          'Yoga Mat', 'Desk Lamp', 'Backpack', 'Water Bottle', 'Phone Case'
+        ];
+        
+        const randomProduct = {
+          name: names[Math.floor(Math.random() * names.length)],
+          price: Math.round((Math.random() * 100 + 10) * 100) / 100,
+          category: categories[Math.floor(Math.random() * categories.length)],
+          rating: Math.floor(Math.random() * 5) + 1,
+          description: 'Randomly generated product for demo purposes'
+        };
+
+        demo.addItem(randomProduct);
+        logEvent('eventLogDirection', 'Random Product Added', randomProduct);
+      }
+
       // Set up event listeners for all demos
       function setupEventListeners() {
-        const demos = ['demo1', 'demo2', 'demo3', 'demo4'];
+        const demos = ['demo1', 'demo2', 'demo3', 'demo4', 'demoDirection'];
+        const logIds = ['eventLog1', 'eventLog2', 'eventLog3', 'eventLog4', 'eventLogDirection'];
 
         demos.forEach((demoId, index) => {
           const demo = document.getElementById(demoId);
-          const logId = `eventLog${index + 1}`;
+          const logId = logIds[index];
 
           demo.addEventListener('change', e => {
             logEvent(logId, 'Data Changed', { itemCount: e.detail.data.length });
@@ -1147,6 +1324,7 @@ editArray.restoreLabel = 'Undo Delete';</pre
       document.addEventListener('DOMContentLoaded', () => {
         setupEventListeners();
         loadExampleData('users');
+        loadProductData('sample'); // Initialize direction demo
         generateLargeDataset();
         updateItemCount();
       });
