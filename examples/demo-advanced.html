@@ -255,6 +255,11 @@
       color: var(--muted);
       font-size: 0.9rem;
     }
+    .note {
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-bottom: 1rem;
+    }
     .badge {
       display: inline-flex;
       align-items: center;
@@ -324,9 +329,10 @@
     <section class="panel">
       <h2>1. Interactive workspace</h2>
       <p>Use the controls to exercise imperative APIs, tweak labels/attributes, and observe the resulting data stream.</p>
+      <p class="note">This panel sets <code>item-direction="row"</code> so each entry keeps its controls alongside the summary.</p>
       <div class="layout-grid two">
         <div class="demo-column">
-          <ck-edit-array id="advancedDemo" array-field="users" edit-label="Edit" save-label="Save" delete-label="Remove" cancel-label="Cancel">
+          <ck-edit-array id="advancedDemo" array-field="users" edit-label="Edit" save-label="Save" delete-label="Remove" cancel-label="Cancel" item-direction="row">
             <div slot="display">
               <div class="item-card">
                 <h3 data-display-for="name"></h3>

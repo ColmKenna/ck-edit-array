@@ -980,6 +980,52 @@ describe('EditArray Web Component', () => {
     });
   });
 
+  describe('itemDirection Attribute', () => {
+    const getShadowStyles = (): string => {
+      const root = element.shadowRoot;
+      if (!root) return '';
+
+      const adopted = (root as any).adoptedStyleSheets as CSSStyleSheet[] | undefined;
+      if (Array.isArray(adopted) && adopted.length > 0) {
+        return adopted
+          .map((sheet) => {
+            try {
+              return Array.from(sheet.cssRules ?? []).map((rule) => rule.cssText).join('\n');
+            } catch (_err) {
+              return sheet.toString?.() ?? '';
+            }
+          })
+          .join('\n');
+      }
+
+      return root.querySelector('style')?.textContent ?? '';
+    };
+
+    it('defaults to column when attribute is not set', () => {
+      expect(element.itemDirection).toBe('column');
+    });
+
+    it('reflects attribute value when set to row', () => {
+      element.setAttribute('item-direction', 'row');
+      expect(element.itemDirection).toBe('row');
+    });
+
+    it('setter updates attribute and removes invalid values', () => {
+      element.itemDirection = 'row';
+      expect(element.getAttribute('item-direction')).toBe('row');
+
+      element.itemDirection = 'column';
+      expect(element.hasAttribute('item-direction')).toBe(false);
+    });
+
+    it('defines row layout styles in the shadow stylesheet', () => {
+      const styles = getShadowStyles();
+      expect(styles).toContain(':host([item-direction="row"]) .edit-array-item');
+      expect(styles).toContain('justify-content: space-between;');
+      expect(styles).toContain('flex-direction: row;');
+    });
+  });
+
   describe('restoreLabel Property', () => {
     it('returns null when attribute not set', () => {
       expect(element.restoreLabel).toBeNull();

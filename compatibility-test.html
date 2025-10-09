@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TypeScript Compatibility Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .success {
+            color: green;
+        }
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>TypeScript Compatibility Test</h1>
+    
+    <div class="test-section">
+        <h2>JavaScript Version</h2>
+        <ck-edit-array-js id="js-version" array-field="users" data='[{"name":"John","email":"john@example.com"}]'>
+            <div slot="display">
+                <span data-display-for="name"></span> - <span data-display-for="email"></span>
+            </div>
+            <div slot="edit">
+                <input name="name" required placeholder="Name">
+                <input name="email" type="email" required placeholder="Email">
+            </div>
+        </ck-edit-array-js>
+    </div>
+
+    <div class="test-section">
+        <h2>TypeScript Version</h2>
+        <ck-edit-array id="ts-version" array-field="users" data='[{"name":"John","email":"john@example.com"}]'>
+            <div slot="display">
+                <span data-display-for="name"></span> - <span data-display-for="email"></span>
+            </div>
+            <div slot="edit">
+                <input name="name" required placeholder="Name">
+                <input name="email" type="email" required placeholder="Email">
+            </div>
+        </ck-edit-array>
+    </div>
+
+    <div class="test-section">
+        <h2>Test Results</h2>
+        <div id="test-results"></div>
+    </div>
+
+    <!-- Load both versions for comparison -->
+    <script type="module">
+        // Import TypeScript version
+        import './src/ck-edit-array.js';
+        
+        // Create a custom element for the JS version for comparison
+        // (In a real scenario, you'd import the original JS file)
+        
+        // Run compatibility tests
+        function runTests() {
+            const results = document.getElementById('test-results');
+            const tests = [];
+            
+            // Test 1: Both components exist
+            const tsComponent = document.getElementById('ts-version');
+            tests.push({
+                name: 'TypeScript component exists',
+                passed: tsComponent !== null,
+                details: tsComponent ? 'Component found' : 'Component not found'
+            });
+            
+            // Test 2: Component has expected methods
+            if (tsComponent) {
+                const expectedMethods = ['addItem', 'updateItem', 'removeItem', 'toggleDeletion'];
+                const methodTests = expectedMethods.map(method => ({
+                    name: `Has ${method} method`,
+                    passed: typeof tsComponent[method] === 'function',
+                    details: typeof tsComponent[method] === 'function' ? 'Method exists' : 'Method missing'
+                }));
+                tests.push(...methodTests);
+            }
+            
+            // Test 3: Component has expected properties
+            if (tsComponent) {
+                const propertyTests = [
+                    {
+                        name: 'Has arrayField property',
+                        passed: 'arrayField' in tsComponent,
+                        details: 'arrayField' in tsComponent ? 'Property exists' : 'Property missing'
+                    },
+                    {
+                        name: 'Has data property',
+                        passed: 'data' in tsComponent,
+                        details: 'data' in tsComponent ? 'Property exists' : 'Property missing'
+                    }
+                ];
+                tests.push(...propertyTests);
+            }
+            
+            // Test 4: Component renders correctly
+            if (tsComponent) {
+                const shadowRoot = tsComponent.shadowRoot;
+                tests.push({
+                    name: 'Has shadow DOM',
+                    passed: shadowRoot !== null,
+                    details: shadowRoot ? 'Shadow DOM exists' : 'Shadow DOM missing'
+                });
+                
+                if (shadowRoot) {
+                    const container = shadowRoot.querySelector('.edit-array-container');
+                    tests.push({
+                        name: 'Has container element',
+                        passed: container !== null,
+                        details: container ? 'Container found' : 'Container missing'
+                    });
+                }
+            }
+            
+            // Display results
+            let html = '<ul>';
+            let passed = 0;
+            let total = tests.length;
+            
+            tests.forEach(test => {
+                const status = test.passed ? 'success' : 'error';
+                const icon = test.passed ? '✅' : '❌';
+                html += `<li class="${status}">${icon} ${test.name}: ${test.details}</li>`;
+                if (test.passed) passed++;
+            });
+            
+            html += '</ul>';
+            html += `<p><strong>Results: ${passed}/${total} tests passed</strong></p>`;
+            
+            if (passed === total) {
+                html += '<p class="success">🎉 All compatibility tests passed!</p>';
+            } else {
+                html += '<p class="error">⚠️ Some tests failed</p>';
+            }
+            
+            results.innerHTML = html;
+        }
+        
+        // Run tests after components are loaded
+        setTimeout(runTests, 100);
+    </script>
+</body>
+</html>

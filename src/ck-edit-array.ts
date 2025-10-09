@@ -532,11 +532,13 @@ EditArray Web Component - A dynamic array editor with inline editing capabilitie
  * A web component that provides a rich interface for editing arrays of objects with:
  * - Inline editing with validation
  * - Add/remove/delete functionality  
- * - Slot-based templating for display and edit modes
+ * - Slot-based templating for display, edit, and button modes
+ * - Custom button templates with automatic enhancement
  * - Event-driven architecture for data changes
  * - Accessibility support and keyboard navigation
  * 
  * @example
+ * Basic usage with default buttons:
  * ```html
  * <ck-edit-array array-field="users" data='[{"name":"John","email":"john@example.com"}]'>
  *   <div slot="display">
@@ -545,6 +547,28 @@ EditArray Web Component - A dynamic array editor with inline editing capabilitie
  *   <div slot="edit">
  *     <input name="name" required>
  *     <input name="email" type="email" required>
+ *   </div>
+ * </ck-edit-array>
+ * ```
+ * 
+ * @example
+ * Advanced usage with custom button templates:
+ * ```html
+ * <ck-edit-array array-field="users" data='[{"name":"John","email":"john@example.com"}]'>
+ *   <div slot="display">
+ *     <span data-display-for="name"></span> - <span data-display-for="email"></span>
+ *   </div>
+ *   <div slot="edit">
+ *     <input name="name" required>
+ *     <input name="email" type="email" required>
+ *   </div>
+ *   <div slot="buttons">
+ *     <button data-action="edit" class="btn-custom">
+ *       <i class="icon-edit"></i> Modify
+ *     </button>
+ *     <button data-action="delete" class="btn-danger-custom">
+ *       <i class="icon-trash"></i> Remove
+ *     </button>
  *   </div>
  * </ck-edit-array>
  * ```
@@ -559,6 +583,10 @@ EditArray Web Component - A dynamic array editor with inline editing capabilitie
  *                 data-display-for="fieldName" attributes to show field values.
  * @slot edit - Template for editing items with form controls. Should contain form inputs with 
  *              name attributes matching the data field names. Supports validation.
+ * @slot buttons - Optional template for custom button designs. Should contain button elements with 
+ *                 data-action attributes ("edit", "delete", "cancel", "add"). Buttons are automatically 
+ *                 enhanced with proper classes, attributes, and accessibility features while preserving 
+ *                 custom styling and content. Falls back to default programmatic buttons if not provided.
  * 
  * @attr {string} array-field - The field name for form submission (used for name attributes)
  * @attr {string} data - JSON string representation of the array data
@@ -1267,6 +1295,183 @@ class EditArray extends HTMLElement {
     return wrapper;
   }
 
+  /**
+   * Checks if a buttons slot exists in the component.
+   * 
+   * This method is used to determine whether custom button templates
+   * are available for enhancement, or if buttons should be created
+   * programmatically as a fallback.
+   * 
+   * @returns {boolean} True if buttons slot exists, false otherwise
+   * @private
+   */
+  private hasButtonsSlot(): boolean {
+    const buttonsSlot = this.querySelector('[slot="buttons"]');
+    return buttonsSlot !== null;
+  }
+
+  /**
+   * Gets a slotted button template for the specified action.
+   * 
+   * Searches the buttons slot for a button element with the matching
+   * data-action attribute. Returns the first matching button found,
+   * or null if no match exists or the buttons slot is not present.
+   * 
+   * @param {string} action - The action type (edit, delete, cancel, add)
+   * @returns {HTMLButtonElement | null} The button template or null if not found
+   * @private
+   */
+  private getSlottedButtonTemplate(action: string): HTMLButtonElement | null {
+    // Validate action parameter - must be a non-empty string
+    if (!action || typeof action !== 'string') {
+      return null;
+    }
+
+    // Check if buttons slot exists
+    const buttonsSlot = this.querySelector('[slot="buttons"]');
+    if (!buttonsSlot) {
+      return null;
+    }
+
+    // Find button element with matching data-action attribute
+    // Using querySelector ensures we get the first matching element
+    const template = buttonsSlot.querySelector(`button[data-action="${action}"]`) as HTMLButtonElement;
+    return template || null;
+  }
+
+  /**
+   * Gets the appropriate CSS classes for a button based on its action type.
+   * 
+   * Returns an array of CSS class names that should be applied to buttons
+   * of the specified action type to maintain consistent styling with the
+   * existing programmatically created buttons.
+   * 
+   * @param {string} action - The action type (edit, delete, cancel, add)
+   * @returns {string[]} Array of CSS class names
+   * @private
+   */
+  private getButtonClasses(action: string): string[] {
+    const baseClasses = ['btn'];
+    const smallSize = 'btn-sm';
+    
+    switch (action) {
+      case 'edit':
+        return [...baseClasses, smallSize, 'btn-primary', 'edit-array-item-btn'];
+      case 'delete':
+        return [...baseClasses, smallSize, 'btn-danger', 'delete-array-item-btn'];
+      case 'cancel':
+        return [...baseClasses, smallSize, 'btn-danger'];
+      case 'add':
+        return [...baseClasses, 'btn-success'];
+      default:
+        return [...baseClasses, smallSize];
+    }
+  }
+
+  /**
+   * Generates an appropriate aria-label for a button based on its action and context.
+   * 
+   * Creates accessible labels that describe the button's purpose and context,
+   * using custom label attributes when available.
+   * 
+   * @param {string} action - The action type (edit, delete, cancel, add, restore)
+   * @param {number} [index] - The item index (for item-specific actions)
+   * @returns {string} The aria-label text
+   * @private
+   */
+  private getButtonAriaLabel(action: string, index?: number): string {
+    let itemText = '';
+    
+    if (typeof index === 'number') {
+      // Handle negative indices by treating them as 0
+      const itemNumber = index < 0 ? 0 : index + 1;
+      itemText = ` item ${itemNumber}`;
+    } else if (index === null || index === undefined) {
+      // For null/undefined, just add " item" without number for indexed actions
+      if (['edit', 'delete', 'restore'].includes(action)) {
+        itemText = ' item';
+      }
+    }
+    
+    switch (action) {
+      case 'edit': {
+        const label = this.getAttribute('edit-label') || 'Edit';
+        return `${label}${itemText}`;
+      }
+      case 'delete': {
+        const label = this.getAttribute('delete-label') || 'Delete';
+        return `${label}${itemText}`;
+      }
+      case 'restore': {
+        const label = this.getAttribute('restore-label') || 'Restore';
+        return `${label}${itemText}`;
+      }
+      case 'cancel': {
+        const label = this.getAttribute('cancel-label') || 'Cancel';
+        return `${label} adding item`;
+      }
+      case 'add': {
+        return 'Add new item';
+      }
+      default:
+        return `${action}${itemText}`;
+    }
+  }
+
+  /**
+   * Enhances a button template with appropriate attributes, classes, and accessibility features.
+   * 
+   * Takes a button element (typically from a slot template) and adds the necessary
+   * data attributes, CSS classes, and aria-label to make it function properly
+   * within the EditArray component. Returns a cloned button to avoid modifying
+   * the original template.
+   * 
+   * @param {HTMLButtonElement} button - The button element to enhance
+   * @param {string} action - The action type (edit, delete, cancel, add)
+   * @param {number} [index] - The item index (for item-specific actions)
+   * @returns {HTMLButtonElement} The enhanced button clone
+   * @throws {TypeError} If button is not a valid HTMLButtonElement
+   * @private
+   */
+  private enhanceButtonWithAttributes(button: HTMLButtonElement, action: string, index?: number): HTMLButtonElement {
+    // Validate input parameters
+    if (!button || !(button instanceof HTMLButtonElement)) {
+      throw new TypeError('First parameter must be a valid HTMLButtonElement');
+    }
+
+    // Clone the button to avoid modifying the original template
+    const enhanced = button.cloneNode(true) as HTMLButtonElement;
+
+    // Add data attributes
+    enhanced.setAttribute('data-action', action);
+    if (typeof index === 'number') {
+      enhanced.setAttribute('data-index', String(index));
+    }
+
+    // Add aria-label for accessibility
+    const ariaLabel = this.getButtonAriaLabel(action, index);
+    enhanced.setAttribute('aria-label', ariaLabel);
+
+    // Get and add appropriate CSS classes
+    const newClasses = this.getButtonClasses(action);
+    
+    // Merge classes without duplicates
+    const existingClasses = Array.from(enhanced.classList);
+    const allClasses = [...existingClasses];
+    
+    // Add new classes that don't already exist
+    newClasses.forEach(newClass => {
+      if (!allClasses.includes(newClass)) {
+        allClasses.push(newClass);
+      }
+    });
+
+    // Apply the merged class list
+    enhanced.className = allClasses.join(' ');
+
+    return enhanced;
+  }
+
   private createCancelButton(_wrapper: HTMLElement): HTMLButtonElement {
     const cancelBtn = document.createElement("button");
     cancelBtn.textContent =
@@ -1278,6 +1483,18 @@ class EditArray extends HTMLElement {
   }
 
   private createDeleteButton(index: number, item?: EditArrayItem | null): HTMLButtonElement {
+    // Check for slotted delete button template first
+    const slottedTemplate = this.getSlottedButtonTemplate('delete');
+    
+    if (slottedTemplate) {
+      // Determine the appropriate action based on item deletion state
+      // This ensures the correct aria-label and styling are applied
+      const action = (item && item.isDeleted) ? 'restore' : 'delete';
+      // Use slotted template and enhance it with proper attributes and classes
+      return this.enhanceButtonWithAttributes(slottedTemplate, action, index);
+    }
+    
+    // Fallback to programmatic button creation when no slot template exists
     const deleteBtn = document.createElement("button");
     const buttonText = this.getDeleteButtonText(item);
     deleteBtn.textContent = buttonText;
@@ -1289,6 +1506,15 @@ class EditArray extends HTMLElement {
   }
 
   private createEditButton(index: number): HTMLButtonElement {
+    // Check for slotted edit button template first
+    const slottedTemplate = this.getSlottedButtonTemplate('edit');
+    
+    if (slottedTemplate) {
+      // Use slotted template and enhance it with proper attributes and classes
+      return this.enhanceButtonWithAttributes(slottedTemplate, 'edit', index);
+    }
+    
+    // Fallback to programmatic button creation when no slot template exists
     const editBtn = document.createElement("button");
     editBtn.textContent = this.getAttribute("edit-label") || "Edit";
     editBtn.className = "btn btn-sm btn-primary edit-array-item-btn";

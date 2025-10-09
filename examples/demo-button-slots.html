@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EditArray - Button Slot Customization Demo</title>
+    <style>
+        :root {
+            --primary-color: #3b82f6;
+            --success-color: #10b981;
+            --danger-color: #ef4444;
+            --warning-color: #f59e0b;
+            --text-color: #1f2937;
+            --background-color: #ffffff;
+            --border-color: #e5e7eb;
+            --surface-color: #f9fafb;
+            --border-radius: 8px;
+            --spacing-md: 1rem;
+            --spacing-lg: 1.5rem;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .header h1 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .demo-section {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .demo-section h2 {
+            color: var(--primary-color);
+            margin-top: 0;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 0.5rem;
+        }
+
+        .demo-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .demo-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .code-display {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            overflow-x: auto;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.25rem;
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background: var(--background-color);
+            color: var(--text-color);
+        }
+
+        /* Custom button styles for slot examples */
+        .btn-icon {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-icon:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-edit-custom {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-delete-custom {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .btn-minimal {
+            background: transparent;
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+            padding: 0.25rem 0.75rem;
+            font-size: 0.8rem;
+        }
+
+        .btn-minimal:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-rounded {
+            border-radius: 50px;
+            padding: 0.5rem 1.5rem;
+            background: var(--success-color);
+            color: white;
+            border: none;
+            font-weight: 600;
+        }
+
+        .btn-glass {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: var(--text-color);
+            border-radius: 12px;
+        }
+
+        .feature-highlight {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 1rem;
+        }
+
+        .feature-highlight h3 {
+            margin-top: 0;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .comparison-table th {
+            background: var(--surface-color);
+            font-weight: 600;
+        }
+
+        .icon {
+            width: 16px;
+            height: 16px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🎨 Button Slot Customization</h1>
+            <p>Customize EditArray buttons with your own designs while keeping all functionality</p>
+            <p><a href="demo.html">← Back to main demo</a> | <a href="demo-advanced.html">Advanced demo →</a></p>
+        </header>
+
+        <div class="feature-highlight">
+            <h3>✨ New Feature: Custom Button Templates</h3>
+            <p>The EditArray component now supports custom button templates through the <code>buttons</code> slot. Define your own button designs and the component will automatically enhance them with proper functionality, accessibility, and state management.</p>
+        </div>
+
+        <!-- Default vs Custom Comparison -->
+        <section class="demo-section">
+            <h2>📊 Default vs Custom Buttons Comparison</h2>
+            <div class="demo-grid">
+                <div>
+                    <h3>Default Buttons (No Slot)</h3>
+                    <ck-edit-array id="default-demo" array-field="users">
+                        <div slot="display">
+                            <div class="form-group">
+                                <strong data-display-for="name"></strong>
+                                <div style="color: var(--primary-color); font-size: 0.9rem">
+                                    📧 <span data-display-for="email"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div slot="edit">
+                            <div class="form-group">
+                                <label>Name *</label>
+                                <input name="name" required placeholder="Enter name" />
+                            </div>
+                            <div class="form-group">
+                                <label>Email *</label>
+                                <input name="email" type="email" required placeholder="user@example.com" />
+                            </div>
+                        </div>
+                    </ck-edit-array>
+                </div>
+
+                <div>
+                    <h3>Custom Buttons (With Slot)</h3>
+                    <ck-edit-array id="custom-demo" array-field="users">
+                        <div slot="display">
+                            <div class="form-group">
+                                <strong data-display-for="name"></strong>
+                                <div style="color: var(--primary-color); font-size: 0.9rem">
+                                    📧 <span data-display-for="email"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div slot="edit">
+                            <div class="form-group">
+                                <label>Name *</label>
+                                <input name="name" required placeholder="Enter name" />
+                            </div>
+                            <div class="form-group">
+                                <label>Email *</label>
+                                <input name="email" type="email" required placeholder="user@example.com" />
+                            </div>
+                        </div>
+                        <div slot="buttons">
+                            <button data-action="edit" class="btn-icon btn-edit-custom">
+                                <svg class="icon" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.828-2.828z"></path>
+                                </svg>
+                                Modify
+                            </button>
+                            <button data-action="delete" class="btn-icon btn-delete-custom">
+                                <svg class="icon" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9zM4 5a2 2 0 012-2h8a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 102 0v3a1 1 0 11-2 0V9zm4 0a1 1 0 10-2 0v3a1 1 0 102 0V9z" clip-rule="evenodd"></path>
+                                </svg>
+                                Remove
+                            </button>
+                        </div>
+                    </ck-edit-array>
+                </div>
+            </div>
+
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th>Default Buttons</th>
+                        <th>Custom Buttons</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Styling</td>
+                        <td>Standard component styles</td>
+                        <td>Your custom CSS classes and styles</td>
+                    </tr>
+                    <tr>
+                        <td>Content</td>
+                        <td>Text labels only</td>
+                        <td>Icons, text, complex HTML structures</td>
+                    </tr>
+                    <tr>
+                        <td>Functionality</td>
+                        <td>Full functionality</td>
+                        <td>Same full functionality + your customizations</td>
+                    </tr>
+                    <tr>
+                        <td>Accessibility</td>
+                        <td>Built-in ARIA labels</td>
+                        <td>Enhanced with proper ARIA labels automatically</td>
+                    </tr>
+                    <tr>
+                        <td>State Management</td>
+                        <td>Delete/Restore text updates</td>
+                        <td>Same state management with your designs</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Different Button Styles -->
+        <section class="demo-section">
+            <h2>🎨 Button Style Variations</h2>
+            
+            <div class="demo-grid">
+                <div>
+                    <h3>Minimal Style</h3>
+                    <ck-edit-array id="minimal-demo" array-field="tasks">
+                        <div slot="display">
+                            <div class="form-group">
+                                <strong data-display-for="task"></strong>
+                                <div style="font-size: 0.8rem; opacity: 0.7">
+                                    Priority: <span data-display-for="priority"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div slot="edit">
+                            <div class="form-group">
+                                <label>Task *</label>
+                                <input name="task" required placeholder="Enter task" />
+                            </div>
+                            <div class="form-group">
+                                <label>Priority</label>
+                                <select name="priority">
+                                    <option value="low">Low</option>
+                                    <option value="medium">Medium</option>
+                                    <option value="high">High</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div slot="buttons">
+                            <button data-action="edit" class="btn-minimal">edit</button>
+                            <button data-action="delete" class="btn-minimal">delete</button>
+                        </div>
+                    </ck-edit-array>
+                </div>
+
+                <div>
+                    <h3>Rounded Style</h3>
+                    <ck-edit-array id="rounded-demo" array-field="products">
+                        <div slot="display">
+                            <div class="form-group">
+                                <strong data-display-for="product"></strong>
+                                <div style="color: var(--success-color); font-weight: 600">
+                                    $<span data-display-for="price"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div slot="edit">
+                            <div class="form-group">
+                                <label>Product *</label>
+                                <input name="product" required placeholder="Product name" />
+                            </div>
+                            <div class="form-group">
+                                <label>Price *</label>
+                                <input name="price" type="number" step="0.01" required placeholder="0.00" />
+                            </div>
+                        </div>
+                        <div slot="buttons">
+                            <button data-action="edit" class="btn-rounded">✏️ Edit</button>
+                            <button data-action="delete" class="btn-rounded" style="background: var(--danger-color);">🗑️ Delete</button>
+                        </div>
+                    </ck-edit-array>
+                </div>
+            </div>
+
+            <div class="demo-grid">
+                <div>
+                    <h3>Glass Morphism Style</h3>
+                    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 1rem; border-radius: 8px;">
+                        <ck-edit-array id="glass-demo" array-field="notes">
+                            <div slot="display">
+                                <div class="form-group">
+                                    <strong data-display-for="title" style="color: white;"></strong>
+                                    <div style="color: rgba(255,255,255,0.8); font-size: 0.9rem">
+                                        <span data-display-for="content"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div slot="edit">
+                                <div class="form-group">
+                                    <label style="color: white;">Title *</label>
+                                    <input name="title" required placeholder="Note title" />
+                                </div>
+                                <div class="form-group">
+                                    <label style="color: white;">Content</label>
+                                    <input name="content" placeholder="Note content" />
+                                </div>
+                            </div>
+                            <div slot="buttons">
+                                <button data-action="edit" class="btn-glass">
+                                    📝 Edit Note
+                                </button>
+                                <button data-action="delete" class="btn-glass">
+                                    🗑️ Delete Note
+                                </button>
+                            </div>
+                        </ck-edit-array>
+                    </div>
+                </div>
+
+                <div>
+                    <h3>Icon-Only Style</h3>
+                    <ck-edit-array id="icon-demo" array-field="contacts">
+                        <div slot="display">
+                            <div class="form-group">
+                                <strong data-display-for="name"></strong>
+                                <div style="color: var(--primary-color); font-size: 0.9rem">
+                                    📞 <span data-display-for="phone"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div slot="edit">
+                            <div class="form-group">
+                                <label>Name *</label>
+                                <input name="name" required placeholder="Contact name" />
+                            </div>
+                            <div class="form-group">
+                                <label>Phone</label>
+                                <input name="phone" placeholder="Phone number" />
+                            </div>
+                        </div>
+                        <div slot="buttons">
+                            <button data-action="edit" class="btn-icon" style="background: var(--primary-color); color: white; border-radius: 50%; width: 40px; height: 40px; padding: 0; justify-content: center;" title="Edit contact">
+                                <svg class="icon" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.828-2.828z"></path>
+                                </svg>
+                            </button>
+                            <button data-action="delete" class="btn-icon" style="background: var(--danger-color); color: white; border-radius: 50%; width: 40px; height: 40px; padding: 0; justify-content: center;" title="Delete contact">
+                                <svg class="icon" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9zM4 5a2 2 0 012-2h8a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 102 0v3a1 1 0 11-2 0V9zm4 0a1 1 0 10-2 0v3a1 1 0 102 0V9z" clip-rule="evenodd"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </ck-edit-array>
+                </div>
+            </div>
+        </section>
+
+        <!-- Partial Customization -->
+        <section class="demo-section">
+            <h2>🔧 Partial Customization</h2>
+            <p>You can customize only some buttons and let others use the default styling. The component automatically falls back to programmatic creation for missing button templates.</p>
+            
+            <div class="demo-grid">
+                <div>
+                    <h3>Custom Edit, Default Delete</h3>
+                    <ck-edit-array id="partial-demo1" array-field="items">
+                        <div slot="display">
+                            <div class="form-group">
+                                <strong data-display-for="name"></strong>
+                            </div>
+                        </div>
+                        <div slot="edit">
+                            <div class="form-group">
+                                <label>Name *</label>
+                                <input name="name" required placeholder="Item name" />
+                            </div>
+                        </div>
+                        <div slot="buttons">
+                            <!-- Only edit button is customized -->
+                            <button data-action="edit" class="btn-icon" style="background: var(--warning-color); color: white;">
+                                ⚡ Quick Edit
+                            </button>
+                            <!-- Delete button will use default styling -->
+                        </div>
+                    </ck-edit-array>
+                </div>
+
+                <div>
+                    <h3>Custom Delete, Default Edit</h3>
+                    <ck-edit-array id="partial-demo2" array-field="items">
+                        <div slot="display">
+                            <div class="form-group">
+                                <strong data-display-for="name"></strong>
+                            </div>
+                        </div>
+                        <div slot="edit">
+                            <div class="form-group">
+                                <label>Name *</label>
+                                <input name="name" required placeholder="Item name" />
+                            </div>
+                        </div>
+                        <div slot="buttons">
+                            <!-- Only delete button is customized -->
+                            <button data-action="delete" class="btn-icon" style="background: linear-gradient(45deg, #ff6b6b, #ee5a24); color: white;">
+                                💥 Destroy
+                            </button>
+                            <!-- Edit button will use default styling -->
+                        </div>
+                    </ck-edit-array>
+                </div>
+            </div>
+        </section>
+
+        <!-- Code Examples -->
+        <section class="demo-section">
+            <h2>💻 Implementation Examples</h2>
+            
+            <div class="demo-grid">
+                <div>
+                    <h3>Basic Custom Buttons</h3>
+                    <div class="code-display">
+<pre>&lt;ck-edit-array array-field="users"&gt;
+  &lt;div slot="display"&gt;
+    &lt;span data-display-for="name"&gt;&lt;/span&gt;
+  &lt;/div&gt;
+  &lt;div slot="edit"&gt;
+    &lt;input name="name" required&gt;
+  &lt;/div&gt;
+  &lt;div slot="buttons"&gt;
+    &lt;button data-action="edit" class="my-edit-btn"&gt;
+      &lt;i class="icon-edit"&gt;&lt;/i&gt; Modify
+    &lt;/button&gt;
+    &lt;button data-action="delete" class="my-delete-btn"&gt;
+      &lt;i class="icon-trash"&gt;&lt;/i&gt; Remove
+    &lt;/button&gt;
+  &lt;/div&gt;
+&lt;/ck-edit-array&gt;</pre>
+                    </div>
+                </div>
+
+                <div>
+                    <h3>Advanced Button Structure</h3>
+                    <div class="code-display">
+<pre>&lt;div slot="buttons"&gt;
+  &lt;button data-action="edit" class="btn-complex"&gt;
+    &lt;div class="btn-icon-wrapper"&gt;
+      &lt;svg class="btn-icon"&gt;...&lt;/svg&gt;
+    &lt;/div&gt;
+    &lt;div class="btn-content"&gt;
+      &lt;span class="btn-title"&gt;Edit Item&lt;/span&gt;
+      &lt;small class="btn-subtitle"&gt;Modify details&lt;/small&gt;
+    &lt;/div&gt;
+  &lt;/button&gt;
+  
+  &lt;button data-action="delete" class="btn-complex"&gt;
+    &lt;div class="btn-icon-wrapper"&gt;
+      &lt;svg class="btn-icon"&gt;...&lt;/svg&gt;
+    &lt;/div&gt;
+    &lt;div class="btn-content"&gt;
+      &lt;span class="btn-title"&gt;Delete Item&lt;/span&gt;
+      &lt;small class="btn-subtitle"&gt;Remove permanently&lt;/small&gt;
+    &lt;/div&gt;
+  &lt;/button&gt;
+&lt;/div&gt;</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="demo-grid">
+                <div>
+                    <h3>CSS Styling</h3>
+                    <div class="code-display">
+<pre>.my-edit-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.my-edit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.my-delete-btn {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  /* ... similar styles ... */
+}</pre>
+                    </div>
+                </div>
+
+                <div>
+                    <h3>JavaScript Integration</h3>
+                    <div class="code-display">
+<pre>const editArray = document.querySelector('ck-edit-array');
+
+// Custom buttons work exactly like default buttons
+editArray.addEventListener('change', (event) =&gt; {
+  console.log('Data changed:', event.detail.data);
+});
+
+// All methods work the same way
+editArray.addItem({ name: 'New Item' });
+editArray.updateItem(0, 'name', 'Updated Name');
+editArray.toggleDeletion(0); // Button text updates automatically
+
+// Custom button labels still work
+editArray.setAttribute('delete-label', 'Archive');
+editArray.setAttribute('restore-label', 'Unarchive');</pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Best Practices -->
+        <section class="demo-section">
+            <h2>✅ Best Practices</h2>
+            
+            <div class="demo-grid">
+                <div>
+                    <h3>Required Attributes</h3>
+                    <ul>
+                        <li><strong>data-action</strong>: Must be set to "edit", "delete", "cancel", or "add"</li>
+                        <li><strong>Button element</strong>: Only &lt;button&gt; elements are enhanced</li>
+                        <li><strong>Unique actions</strong>: Each action should appear only once per slot</li>
+                    </ul>
+
+                    <h3>Accessibility</h3>
+                    <ul>
+                        <li>Buttons automatically get proper ARIA labels</li>
+                        <li>Custom labels are respected (edit-label, delete-label, etc.)</li>
+                        <li>Focus management is preserved</li>
+                        <li>Screen reader compatibility maintained</li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h3>Styling Guidelines</h3>
+                    <ul>
+                        <li>Use CSS classes for styling, not inline styles when possible</li>
+                        <li>Component adds its own classes automatically</li>
+                        <li>Your custom classes are preserved and merged</li>
+                        <li>Consider hover and focus states for better UX</li>
+                    </ul>
+
+                    <h3>Performance Tips</h3>
+                    <ul>
+                        <li>Button templates are cloned, not moved from the slot</li>
+                        <li>Original templates remain unchanged</li>
+                        <li>Minimal DOM manipulation for better performance</li>
+                        <li>CSS transitions work smoothly with enhanced buttons</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Import the EditArray component -->
+    <script type="module" src="../dist/ck-edit-array.js"></script>
+
+    <script>
+        // Sample data for different demos
+        const sampleData = {
+            users: [
+                { name: 'John Doe', email: 'john@example.com' },
+                { name: 'Jane Smith', email: 'jane@example.com' }
+            ],
+            tasks: [
+                { task: 'Review code', priority: 'high' },
+                { task: 'Update documentation', priority: 'medium' }
+            ],
+            products: [
+                { product: 'Laptop', price: 999.99 },
+                { product: 'Mouse', price: 29.99 }
+            ],
+            notes: [
+                { title: 'Meeting Notes', content: 'Discussed project timeline' },
+                { title: 'Ideas', content: 'New feature concepts' }
+            ],
+            contacts: [
+                { name: 'Alice Johnson', phone: '(555) 123-4567' },
+                { name: 'Bob Wilson', phone: '(555) 987-6543' }
+            ],
+            items: [
+                { name: 'Item 1' },
+                { name: 'Item 2' }
+            ]
+        };
+
+        // Initialize all demos with sample data
+        function initializeDemos() {
+            // Default vs Custom comparison
+            document.getElementById('default-demo').data = sampleData.users;
+            document.getElementById('custom-demo').data = sampleData.users;
+
+            // Style variations
+            document.getElementById('minimal-demo').data = sampleData.tasks;
+            document.getElementById('rounded-demo').data = sampleData.products;
+            document.getElementById('glass-demo').data = sampleData.notes;
+            document.getElementById('icon-demo').data = sampleData.contacts;
+
+            // Partial customization
+            document.getElementById('partial-demo1').data = sampleData.items;
+            document.getElementById('partial-demo2').data = sampleData.items;
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', initializeDemos);
+
+        // Add some interactivity for demonstration
+        document.addEventListener('DOMContentLoaded', () => {
+            // Add event listeners to show functionality
+            document.querySelectorAll('ck-edit-array').forEach(element => {
+                element.addEventListener('change', (e) => {
+                    console.log(`${element.id} data changed:`, e.detail.data);
+                });
+
+                element.addEventListener('item-change', (e) => {
+                    console.log(`${element.id} item state changed:`, e.detail);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,10 +1,10 @@
-# EditArray Web Component Specification
+﻿# EditArray Web Component Specification
 
 **Version**: 1.0.0  
 **Status**: Release Candidate  
 **Last Updated**: 2024  
 
-## 📋 Component Overview
+## ðŸ“‹ Component Overview
 
 ### Purpose
 
@@ -22,16 +22,16 @@ This specification defines:
 
 ### Key Features
 
-- ✅ **Inline Editing**: Edit items in place with form validation
-- ✅ **Dynamic Operations**: Add, delete, and modify array items
-- ✅ **Template-Based**: Flexible content definition via slots
-- ✅ **Form Integration**: Native HTML form compatibility
-- ✅ **Accessibility**: WCAG 2.1 AA compliant
-- ✅ **Validation**: Built-in HTML5 validation with custom error messages
-- ✅ **Theming**: CSS custom properties with multiple built-in themes
-- ✅ **Event System**: Comprehensive custom events for integration
+- âœ… **Inline Editing**: Edit items in place with form validation
+- âœ… **Dynamic Operations**: Add, delete, and modify array items
+- âœ… **Template-Based**: Flexible content definition via slots
+- âœ… **Form Integration**: Native HTML form compatibility
+- âœ… **Accessibility**: WCAG 2.1 AA compliant
+- âœ… **Validation**: Built-in HTML5 validation with custom error messages
+- âœ… **Theming**: CSS custom properties with multiple built-in themes
+- âœ… **Event System**: Comprehensive custom events for integration
 
-## 🎯 Requirements
+## ðŸŽ¯ Requirements
 
 ### Functional Requirements
 
@@ -127,7 +127,7 @@ This specification defines:
   - CSP-compatible implementation
   - Safe event handling patterns
 
-## 🔌 API Specification
+## ðŸ”Œ API Specification
 
 ### Custom Element Definition
 
@@ -275,7 +275,13 @@ This specification defines:
 - **Observer**: Updates CSS class for theming
 - **Validation**: Invalid themes fall back to "light"
 
-## 🎨 Slot Specification
+#### `item-direction`
+- **Reflects**: Property value (`"row"` or `"column"`)
+- **Default**: `"column"`
+- **Observer**: Updates `.edit-array-item` flex direction and keeps `justify-content: space-between`
+- **Usage**: Set to `"row"` to align item content and actions horizontally
+
+## ðŸŽ¨ Slot Specification
 
 ### Display Slot (`slot="display"`)
 
@@ -336,7 +342,7 @@ This specification defines:
 4. Existing values are populated into form controls
 5. IDs are made unique to prevent conflicts
 
-## 🎯 Validation Specification
+## ðŸŽ¯ Validation Specification
 
 ### HTML5 Validation Support
 
@@ -354,12 +360,12 @@ The component provides enhanced error messages:
 
 ```javascript
 // Type mismatch examples
-type="email" → "Please enter a valid email address. Example: user@example.com"
-type="url" → "Please enter a valid URL. Example: https://www.example.com"
-type="tel" → "Please enter a valid phone number. Example: (555) 123-4567"
+type="email" â†’ "Please enter a valid email address. Example: user@example.com"
+type="url" â†’ "Please enter a valid URL. Example: https://www.example.com"
+type="tel" â†’ "Please enter a valid phone number. Example: (555) 123-4567"
 
 // Pattern mismatch with placeholder
-pattern="[0-9]{5}" placeholder="12345" → "Please match the required format. Example: 12345"
+pattern="[0-9]{5}" placeholder="12345" â†’ "Please match the required format. Example: 12345"
 ```
 
 ### Validation State Management
@@ -374,7 +380,7 @@ pattern="[0-9]{5}" placeholder="12345" → "Please match the required format. Ex
 - `aria-describedby`: Links controls to error message elements
 - Error messages are announced to screen readers
 
-## ♿ Accessibility Specification
+## â™¿ Accessibility Specification
 
 ### WCAG 2.1 AA Compliance
 
@@ -414,7 +420,7 @@ pattern="[0-9]{5}" placeholder="12345" → "Please match the required format. Ex
 </div>
 ```
 
-## 🔒 Security Specification
+## ðŸ”’ Security Specification
 
 ### XSS Prevention
 
@@ -452,7 +458,7 @@ The component is compatible with strict Content Security Policies:
 - **No inline scripts**: No script element creation or modification
 - **Safe event handling**: Uses standard DOM APIs exclusively
 
-## 🧪 Testing Requirements
+## ðŸ§ª Testing Requirements
 
 ### Unit Testing Coverage
 
@@ -489,7 +495,7 @@ The component is compatible with strict Content Security Policies:
 - Delete item operation: < 50ms
 - Memory usage: Linear growth with data size
 
-## 🌐 Browser Compatibility
+## ðŸŒ Browser Compatibility
 
 ### Supported Browsers
 
@@ -519,33 +525,33 @@ const supportsCustomElements =
 ### Graceful Degradation
 
 **Missing Features**:
-- Constructable Stylesheets → Style element fallback
-- Custom Elements → Polyfill recommendation
-- Shadow DOM → Light DOM fallback (external implementation)
+- Constructable Stylesheets â†’ Style element fallback
+- Custom Elements â†’ Polyfill recommendation
+- Shadow DOM â†’ Light DOM fallback (external implementation)
 
-## 📦 Distribution Specification
+## ðŸ“¦ Distribution Specification
 
 ### Package Structure
 
 ```
 edit-array/
-├── src/
-│   ├── ck-edit-array.js          # Main component
-│   └── ck-edit-array.d.ts        # TypeScript definitions
-├── dist/
-│   ├── edit-array.min.js      # Minified version
-│   └── edit-array.esm.js      # ES module build
-├── examples/
-│   └── demo.html              # Interactive demo
-├── tests/
-│   ├── edit-array.test.js     # Unit tests
-│   ├── edit-array.visual.test.js    # Visual tests
-│   ├── edit-array.accessibility.test.js # A11y tests
-│   └── edit-array.performance.test.js   # Performance tests
-└── docs/
-    ├── README.md              # User documentation
-    ├── readme.technical.md    # Technical guide
-    └── spec.md               # This specification
+â”œâ”€â”€ src/
+â”‚   â”œâ”€â”€ ck-edit-array.js          # Main component
+â”‚   â””â”€â”€ ck-edit-array.d.ts        # TypeScript definitions
+â”œâ”€â”€ dist/
+â”‚   â”œâ”€â”€ edit-array.min.js      # Minified version
+â”‚   â””â”€â”€ edit-array.esm.js      # ES module build
+â”œâ”€â”€ examples/
+â”‚   â””â”€â”€ demo.html              # Interactive demo
+â”œâ”€â”€ tests/
+â”‚   â”œâ”€â”€ edit-array.test.js     # Unit tests
+â”‚   â”œâ”€â”€ edit-array.visual.test.js    # Visual tests
+â”‚   â”œâ”€â”€ edit-array.accessibility.test.js # A11y tests
+â”‚   â””â”€â”€ edit-array.performance.test.js   # Performance tests
+â””â”€â”€ docs/
+    â”œâ”€â”€ README.md              # User documentation
+    â”œâ”€â”€ readme.technical.md    # Technical guide
+    â””â”€â”€ spec.md               # This specification
 ```
 
 ### Build Requirements
@@ -570,7 +576,7 @@ edit-array/
 - Module: `src/ck-edit-array.js`
 - Types: `src/ck-edit-array.d.ts`
 
-## 🔄 Versioning
+## ðŸ”„ Versioning
 
 ### Semantic Versioning
 
