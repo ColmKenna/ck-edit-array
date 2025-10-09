@@ -63,6 +63,7 @@ import 'edit-array-component';
 | `save-label` | `string` | `"Save"` | Label text for save buttons |
 | `delete-label` | `string` | `"Delete"` | Label text for delete buttons |
 | `cancel-label` | `string` | `"Cancel"` | Label text for cancel buttons |
+| `item-direction` | `string` | `"column"` | Layout direction for each item; set to `"row"` to place content and actions side-by-side |
 
 ### Properties
 
@@ -87,6 +88,17 @@ editArray.data = [
 
 // Get current data (returns a deep clone)
 const currentData = editArray.data;
+```
+
+#### `itemDirection: 'row' | 'column'`
+Controls the flex direction used for each `.edit-array-item`. Defaults to `"column"` and can be set to `"row"` via attribute or property.
+
+```javascript
+const editArray = document.querySelector('ck-edit-array');
+editArray.itemDirection = 'row';
+
+// Equivalent to setting the attribute directly:
+// <ck-edit-array item-direction="row"></ck-edit-array>
 ```
 
 ### Methods

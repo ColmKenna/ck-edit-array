@@ -416,6 +416,13 @@
                   onchange="updateRestoreLabel('demo1', this.value)"
                 />
               </div>
+              <div class="control-group">
+                <label>Item Direction:</label>
+                <select id="itemDirection1" onchange="updateItemDirection('demo1', this.value)">
+                  <option value="column" selected>Column (stacked)</option>
+                  <option value="row">Row (horizontal)</option>
+                </select>
+              </div>
             </div>
 
             <ck-edit-array id="demo1" array-field="users" restore-label="Undo Delete">
@@ -937,6 +944,12 @@ editArray.restoreLabel = 'Undo Delete';</pre
 
       function updateRestoreLabel(demoId, value) {
         document.getElementById(demoId).restoreLabel = value;
+      }
+
+      function updateItemDirection(demoId, value) {
+        const element = document.getElementById(demoId);
+        if (!element) return;
+        element.itemDirection = value === 'row' ? 'row' : 'column';
       }
 
       // Validation demo functions

@@ -1,4 +1,4 @@
-# EditArray Technical Implementation Guide
+﻿# EditArray Technical Implementation Guide
 
 This document provides in-depth technical details about the EditArray web component's architecture, implementation decisions, and internal workings.
 
@@ -98,9 +98,14 @@ const applyEditArrayStyles = (shadowRoot) => {
    - Transparent fallback mechanism
 
 4. **Safari Compatibility**:
+
    - Safari < 16.4 lacks Constructable Stylesheet support
    - Automatic fallback ensures compatibility
    - Performance impact minimal due to efficient fallback implementation
+
+#### Item Layout Direction
+- The base `.edit-array-item` flex container now pins `justify-content: space-between` so content and action controls stay balanced regardless of direction.
+- The `item-direction` attribute/property toggles between column (default) and row layouts by flipping `flex-direction` while preserving spacing, giving integrators a simple responsive toggle.
 
 ### Shadow DOM Strategy
 

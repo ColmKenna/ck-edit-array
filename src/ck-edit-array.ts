@@ -63,7 +63,12 @@ const EDIT_ARRAY_CSS: string = `
     transition: opacity var(--transition-duration, 0.3s) var(--transition-timing, ease); 
     display: flex;
     flex-direction: column;
+    justify-content: space-between;
     gap: var(--spacing-lg, 1rem);
+  }
+
+  :host([item-direction="row"]) .edit-array-item {
+    flex-direction: row;
   }
 
   .edit-container, .display-container {
@@ -791,6 +796,25 @@ class EditArray extends HTMLElement {
     value == null
       ? this.removeAttribute("restore-label")
       : this.setAttribute("restore-label", value);
+  }
+
+  /**
+   * Gets the item-direction attribute value, defaulting to "column".
+   */
+  get itemDirection(): "row" | "column" {
+    const attr = this.getAttribute("item-direction");
+    return attr === "row" ? "row" : "column";
+  }
+
+  /**
+   * Sets the item-direction attribute value.
+   */
+  set itemDirection(value: "row" | "column" | null) {
+    if (value === "row") {
+      this.setAttribute("item-direction", "row");
+    } else {
+      this.removeAttribute("item-direction");
+    }
   }
 
   /**

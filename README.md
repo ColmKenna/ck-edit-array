@@ -1,4 +1,4 @@
-# ck-edit-array
+ï»¿# ck-edit-array
 
 `ck-edit-array` is a standards-based web component for collecting and editing arrays of structured form data. It provides inline editing, validation helpers, keyboard accessibility, and emits rich lifecycle events so you can keep your application state in sync.
 
@@ -40,21 +40,37 @@ Load the pre-built module directly from a CDN such as unpkg or jsDelivr:
 ```
 
 ### Slots
-- `display` – readonly template for each item.
-- `edit` – editable template shown when an item enters edit mode.
-- `empty` – content rendered when there are no items.
+- `display` ï¿½ readonly template for each item.
+- `edit` ï¿½ editable template shown when an item enters edit mode.
+- `empty` ï¿½ content rendered when there are no items.
 
 ### Key Attributes
-- `array-field` – namespace used when binding form inputs.
-- `data` – JSON string or array assigned via property.
-- `add-label`, `save-label`, `cancel-label`, `delete-label`, `restore-label` – customize button copy.
+- `array-field` â€” namespace used when binding form inputs.
+- `data` â€” JSON string or array assigned via property.
+- `add-label`, `save-label`, `cancel-label`, `delete-label`, `restore-label` â€” customize button copy.
+- `item-direction` â€” set to `row` to arrange item content and actions horizontally; defaults to stacked column layout.
 
+### Layout Direction
+Items render as vertical columns by default. Apply `item-direction="row"` for a horizontal layout that keeps display/edit content and action buttons spaced evenly.
+
+```html
+<ck-edit-array array-field="team" item-direction="row">
+  <div slot="display">
+    <span data-display-for="name"></span>
+    <span data-display-for="title"></span>
+  </div>
+  <div slot="edit">
+    <input name="name" required />
+    <input name="title" />
+  </div>
+</ck-edit-array>
+```
 ### Custom Events
-- `ck-edit-array:change` – fires when the backing array changes.
-- `ck-edit-array:item-added` – a new item is appended.
-- `ck-edit-array:item-updated` – a field on an item changes.
-- `ck-edit-array:item-deleted` – an item is marked deleted.
-- `ck-edit-array:item-restored` – an item is restored from deleted state.
+- `ck-edit-array:change` ï¿½ fires when the backing array changes.
+- `ck-edit-array:item-added` ï¿½ a new item is appended.
+- `ck-edit-array:item-updated` ï¿½ a field on an item changes.
+- `ck-edit-array:item-deleted` ï¿½ an item is marked deleted.
+- `ck-edit-array:item-restored` ï¿½ an item is restored from deleted state.
 
 Each event includes the updated data and the affected item index in `event.detail`.
 
