@@ -1295,20 +1295,6 @@ class EditArray extends HTMLElement {
     return wrapper;
   }
 
-  /**
-   * Checks if a buttons slot exists in the component.
-   * 
-   * This method is used to determine whether custom button templates
-   * are available for enhancement, or if buttons should be created
-   * programmatically as a fallback.
-   * 
-   * @returns {boolean} True if buttons slot exists, false otherwise
-   * @private
-   */
-  private hasButtonsSlot(): boolean {
-    const buttonsSlot = this.querySelector('[slot="buttons"]');
-    return buttonsSlot !== null;
-  }
 
   /**
    * Gets a slotted button template for the specified action.
@@ -1737,6 +1723,5 @@ declare global {
     'ck-edit-array': EditArray;
   }
 }
-
 
 
