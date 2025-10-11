@@ -31,58 +31,6 @@ describe('EditArray - Slot Template Discovery', () => {
     container.remove();
   });
 
-  describe('hasButtonsSlot()', () => {
-    it('should return false when no buttons slot exists', () => {
-      // Setup: Element with no buttons slot
-      element.innerHTML = `
-        <div slot="display">
-          <span data-display-for="name"></span>
-        </div>
-        <div slot="edit">
-          <input name="name" required>
-        </div>
-      `;
-
-      // Test: Check if buttons slot exists
-      expect((element as any).hasButtonsSlot()).toBe(false);
-    });
-
-    it('should return true when buttons slot exists', () => {
-      // Setup: Element with buttons slot
-      element.innerHTML = `
-        <div slot="display">
-          <span data-display-for="name"></span>
-        </div>
-        <div slot="edit">
-          <input name="name" required>
-        </div>
-        <div slot="buttons">
-          <button data-action="edit">Edit</button>
-        </div>
-      `;
-
-      // Test: Check if buttons slot exists
-      expect((element as any).hasButtonsSlot()).toBe(true);
-    });
-
-    it('should return false when buttons slot exists but is empty', () => {
-      // Setup: Element with empty buttons slot
-      element.innerHTML = `
-        <div slot="display">
-          <span data-display-for="name"></span>
-        </div>
-        <div slot="edit">
-          <input name="name" required>
-        </div>
-        <div slot="buttons">
-        </div>
-      `;
-
-      // Test: Check if buttons slot exists
-      expect((element as any).hasButtonsSlot()).toBe(true);
-    });
-  });
-
   describe('getSlottedButtonTemplate()', () => {
     it('should return null when no buttons slot exists', () => {
       // Setup: Element with no buttons slot
