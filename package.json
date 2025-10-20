@@ -1,6 +1,6 @@
 {
   "name": "@colmkenna/ck-edit-array",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "A web component for editing arrays of structured data with inline editing, validation, and accessibility features.",
   "type": "module",
   "source": "src/ck-edit-array.ts",
