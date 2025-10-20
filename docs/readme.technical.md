@@ -89,15 +89,29 @@ const applyEditArrayStyles = (shadowRoot) => {
 ```javascript
 constructor() {
   super();
-  const shadow = this.attachShadow({ mode: "open" });
-  
-  shadow.innerHTML = `
-    <div class="edit-array-container" id="${this.id}" role="region" aria-label="Array editor">
-      <div class="edit-array-items" role="list" aria-label="Editable items"></div>
-      <div class="action-bar"></div>
-    </div>
-  `;
-  
+  const shadow = this.attachShadow({ mode: 'open' });
+
+  // Programmatic DOM construction (avoids injecting HTML strings)
+  const container = document.createElement('div');
+  container.className = 'edit-array-container';
+  if (this.id) container.setAttribute('id', this.id);
+  container.setAttribute('role', 'region');
+  container.setAttribute('aria-label', 'Array editor');
+
+  const items = document.createElement('div');
+  items.className = 'edit-array-items';
+  items.setAttribute('role', 'list');
+  items.setAttribute('aria-label', 'Editable items');
+
+  const actionBar = document.createElement('div');
+  actionBar.className = 'action-bar';
+  // expose part for external styling
+  actionBar.setAttribute('part', 'action-bar');
+
+  container.appendChild(items);
+  container.appendChild(actionBar);
+  shadow.appendChild(container);
+
   applyEditArrayStyles(shadow);
 }
 ```
@@ -113,7 +127,8 @@ Delegated event handling example:
 
 ```javascript
 class EditArray extends HTMLElement {
-  #onInput = (event) => {
+  // In current source this is a private class field: `private onInput = (event: Event) => { ... }`
+  onInput = (event) => {
     const t = event.target;
     if (!t) return;
     
@@ -127,7 +142,7 @@ class EditArray extends HTMLElement {
     this.updateRecord(index, name, t.value);
   };
 
-  #onDelegatedClick = (event) => {
+  onDelegatedClick = (event) => {
     const target = event.target;
     const action = target.getAttribute('data-action');
     if (!action) return;
@@ -141,15 +156,15 @@ class EditArray extends HTMLElement {
   };
 
   connectedCallback() {
-    this.shadowRoot.addEventListener("input", this.#onInput);
-    this.shadowRoot.addEventListener("click", this.#onDelegatedClick);
+    this.shadowRoot.addEventListener('input', this.onInput);
+    this.shadowRoot.addEventListener('click', this.onDelegatedClick);
     this.render();
   }
 
   disconnectedCallback() {
     if (this.shadowRoot) {
-      this.shadowRoot.removeEventListener("input", this.#onInput);
-      this.shadowRoot.removeEventListener("click", this.#onDelegatedClick);
+      this.shadowRoot.removeEventListener('input', this.onInput);
+      this.shadowRoot.removeEventListener('click', this.onDelegatedClick);
     }
   }
 }
@@ -378,7 +393,17 @@ Memory management: explicit removal of listeners in disconnectedCallback.
 
 ### Accessibility Implementation
 
-ARIA integration and focus management examples included to ensure screen-reader and keyboard usability.
+ARIA integration and focus management are implemented. Error message elements are dynamically inserted adjacent to inputs with `role="alert"` and `aria-live="polite"`. Invalid inputs add `aria-invalid` and `aria-describedby` attributes; messages clear when the field becomes valid.
+
+#### Shadow parts
+
+To support fine‑grained styling from outside the shadow DOM, the component exposes these parts:
+
+- `action-bar` – container that holds the global action buttons (e.g., Add)
+- `add-button` – global Add button
+- `edit-button` – per‑item Edit/Save toggle button
+- `delete-button` – per‑item Delete/Restore toggle button
+- `cancel-button` – per‑item Cancel button (for brand‑new empty items)
 
 ### Security Considerations
 

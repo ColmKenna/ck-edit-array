@@ -4,7 +4,7 @@
 **Status**: Release Candidate  
 **Last Updated**: 2025  
 
-## ðŸ“‹ Component Overview
+## Component Overview
 
 ### Purpose
 
@@ -31,7 +31,7 @@ This specification defines:
 - âœ… **Theming**: CSS custom properties with multiple built-in themes
 - âœ… **Event System**: Comprehensive custom events for integration
 
-## ðŸŽ¯ Requirements
+## Requirements
 
 ### Functional Requirements
 
@@ -127,7 +127,7 @@ This specification defines:
   - CSP-compatible implementation
   - Safe event handling patterns
 
-## ðŸ”Œ API Specification
+## API Specification
 
 ### Custom Element Definition
 
@@ -262,6 +262,19 @@ This specification defines:
   });
   ```
 
+#### `item-change`
+- **Type**: CustomEvent
+- **Bubbles**: Yes
+- **Composed**: Yes
+- **Detail**: `{ index: number, action: string, marked?: boolean, item: Object, data: Array<Object> }`
+- **Fired When**: An item’s deletion state is toggled via delete/restore
+```javascript
+editArray.addEventListener('item-change', (e) => {
+  const { index, action, marked } = e.detail;
+  console.log(`Item ${index} ${action} → marked=${marked}`);
+});
+```
+
 ### Attributes
 
 #### `data`
@@ -282,7 +295,21 @@ There is no `theme` attribute. Theming is accomplished through CSS custom proper
 - **Observer**: Updates `.edit-array-item` flex direction and keeps `justify-content: space-between`
 - **Usage**: Set to `"row"` to align item content and actions horizontally
 
-## ðŸŽ¨ Slot Specification
+#### `restore-label`
+- **Type**: String
+- **Default**: `"Restore"`
+- **Observed**: Yes
+- **Description**: Updates the text and ARIA labels of delete/restore buttons for items currently marked as deleted.
+
+#### Label attributes (not observed)
+- `edit-label` (default: `"Edit"`) – Label for per‑item edit button
+- `save-label` (default: `"Save"`) – Label shown on the edit button while in edit mode
+- `delete-label` (default: `"Delete"`) – Label for per‑item delete button when not marked deleted
+- `cancel-label` (default: `"Cancel"`) – Label for per‑item cancel button for brand‑new empty items
+
+Note: These labels are read when items/buttons are rendered or when edit mode toggles. Changing them after render will not update existing buttons automatically (except `restore-label`).
+
+## Slot Specification
 
 ### Display Slot (`slot="display"`)
 
@@ -323,7 +350,7 @@ Provide an optional element in light DOM with `slot="buttons"` that contains but
 - `data-action="edit"` – template for the per-item edit/save toggle button
 - `data-action="delete"` – template for the per-item delete/restore toggle button
 
-The component will clone and enhance these templates for each item, preserving your custom markup and classes while adding required attributes (`data-index`, ARIA labels) and behavior.
+The component will clone and enhance these templates for each item, preserving your custom markup and classes while adding required attributes (`data-index`, ARIA labels) and behavior. Enhanced buttons also expose a `part` attribute so you can style them via `::part(edit-button)` and `::part(delete-button)`.
 - SHOULD contain form controls (`<input>`, `<select>`, `<textarea>`)
 - MUST use `name` attributes for field identification
 - MAY include validation attributes
@@ -351,7 +378,7 @@ The component will clone and enhance these templates for each item, preserving y
 4. Existing values are populated into form controls
 5. IDs are made unique to prevent conflicts
 
-## ðŸŽ¯ Validation Specification
+## Validation Specification
 
 ### HTML5 Validation Support
 
@@ -369,12 +396,12 @@ The component provides enhanced error messages:
 
 ```javascript
 // Type mismatch examples
-type="email" â†’ "Please enter a valid email address. Example: user@example.com"
-type="url" â†’ "Please enter a valid URL. Example: https://www.example.com"
-type="tel" â†’ "Please enter a valid phone number. Example: (555) 123-4567"
+type="email" → "Please enter a valid email address. Example: user@example.com"
+type="url" → "Please enter a valid URL. Example: https://www.example.com"
+type="tel" → "Please enter a valid phone number. Example: (555) 123-4567"
 
 // Pattern mismatch with placeholder
-pattern="[0-9]{5}" placeholder="12345" â†’ "Please match the required format. Example: 12345"
+pattern="[0-9]{5}" placeholder="12345" → "Please match the required format. Example: 12345"
 ```
 
 ### Validation State Management
@@ -389,7 +416,7 @@ pattern="[0-9]{5}" placeholder="12345" â†’ "Please match the required forma
 - `aria-describedby`: Links controls to error message elements
 - Error messages are announced to screen readers
 
-## â™¿ Accessibility Specification
+## Accessibility Specification
 
 ### WCAG 2.1 AA Compliance
 
@@ -429,7 +456,7 @@ pattern="[0-9]{5}" placeholder="12345" â†’ "Please match the required forma
 </div>
 ```
 
-## ðŸ”’ Security Specification
+## Security Specification
 
 ### XSS Prevention
 
@@ -467,7 +494,7 @@ The component is compatible with strict Content Security Policies:
 - **No inline scripts**: No script element creation or modification
 - **Safe event handling**: Uses standard DOM APIs exclusively
 
-## ðŸ§ª Testing Requirements
+## Testing Requirements
 
 ### Unit Testing Coverage
 
@@ -504,7 +531,7 @@ The component is compatible with strict Content Security Policies:
 - Delete item operation: < 50ms
 - Memory usage: Linear growth with data size
 
-## 🌐 Browser Compatibility
+## Browser Compatibility
 
 ### Supported Browsers
 
@@ -534,33 +561,33 @@ const supportsCustomElements =
 ### Graceful Degradation
 
 **Missing Features**:
-- Constructable Stylesheets â†’ Style element fallback
-- Custom Elements â†’ Polyfill recommendation
-- Shadow DOM â†’ Light DOM fallback (external implementation)
+- Constructable Stylesheets → Style element fallback
+- Custom Elements → Polyfill recommendation
+- Shadow DOM → Light DOM fallback (external implementation)
 
-## ðŸ“¦ Distribution Specification
+## Distribution Specification
 
 ### Package Structure
 
 ```
 edit-array/
-â”œâ”€â”€ src/
-â”‚   â”œâ”€â”€ ck-edit-array.js          # Main component
-â”‚   â””â”€â”€ ck-edit-array.d.ts        # TypeScript definitions
-â”œâ”€â”€ dist/
-â”‚   â”œâ”€â”€ edit-array.min.js      # Minified version
-â”‚   â””â”€â”€ edit-array.esm.js      # ES module build
-â”œâ”€â”€ examples/
-â”‚   â””â”€â”€ demo.html              # Interactive demo
-â”œâ”€â”€ tests/
-â”‚   â”œâ”€â”€ edit-array.test.js     # Unit tests
-â”‚   â”œâ”€â”€ edit-array.visual.test.js    # Visual tests
-â”‚   â”œâ”€â”€ edit-array.accessibility.test.js # A11y tests
-â”‚   â””â”€â”€ edit-array.performance.test.js   # Performance tests
-â””â”€â”€ docs/
-    â”œâ”€â”€ README.md              # User documentation
-    â”œâ”€â”€ readme.technical.md    # Technical guide
-    â””â”€â”€ spec.md               # This specification
+├── src/
+│   ├── ck-edit-array.js          # Main component
+│   └── ck-edit-array.d.ts        # TypeScript definitions
+├── dist/
+│   ├── edit-array.min.js         # Minified version
+│   └── edit-array.esm.js         # ES module build
+├── examples/
+│   └── demo.html                 # Interactive demo
+├── tests/
+│   ├── edit-array.test.js        # Unit tests
+│   ├── edit-array.visual.test.js # Visual tests
+│   ├── edit-array.accessibility.test.js # A11y tests
+│   └── edit-array.performance.test.js   # Performance tests
+└── docs/
+  ├── README.md                 # User documentation
+  ├── readme.technical.md       # Technical guide
+  └── spec.md                   # This specification
 ```
 
 ### Build Requirements
@@ -585,7 +612,7 @@ edit-array/
 - Module: `src/ck-edit-array.js`
 - Types: `src/ck-edit-array.d.ts`
 
-## ðŸ”„ Versioning
+## Versioning
 
 ### Semantic Versioning
 

@@ -61,7 +61,7 @@ Note: Only `array-field`, `data`, and `restore-label` are observed for live upda
 |-----------|------|---------|----------|-------------|
 | `array-field` | `string` | - | Yes | Field name used for form submission (generates proper `name` attributes like `users[0].name`) |
 | `data` | `string` | `"[]"` | Yes | JSON string representation of the array data. Non-JSON strings are ignored when provided via attribute. |
-| `item-direction` | `"row" | "column"` | `"column"` | No | Layout direction for each `.edit-array-item`. Set to `row` to align content/actions horizontally. |
+| `item-direction` | `"row" \| "column"` | `"column"` | No | Layout direction for each `.edit-array-item`. Set to `row` to align content/actions horizontally. |
 | `edit-label` | `string` | `"Edit"` | No | Label text for edit buttons |
 | `save-label` | `string` | `"Save"` | No | Label text shown while editing |
 | `delete-label` | `string` | `"Delete"` | No | Label text for delete buttons |
@@ -313,6 +313,29 @@ Notes:
 - You do not need to provide templates for `add` or `cancel` — those are created programmatically.
 - For deleted items, the `delete` template is automatically enhanced with a restore label and ARIA attributes.
 
+### Shadow Parts for Styling
+
+The component exposes the following shadow parts to enable precise styling from the outside with `::part(...)`:
+
+- `action-bar` – container that holds the global action buttons (e.g., Add)
+- `add-button` – the “Add New Item” button
+- `edit-button` – the per-item Edit/Save toggle button
+- `delete-button` – the per-item Delete/Restore toggle button
+- `cancel-button` – the per-item Cancel button (shown for brand-new empty items)
+
+Example usage:
+
+```css
+ck-edit-array::part(action-bar) {
+  display: flex;
+  justify-content: flex-end;
+}
+
+ck-edit-array::part(edit-button) {
+  text-transform: uppercase;
+}
+```
+
 ## ✅ Validation System
 
 ### Built-in Validation
@@ -411,6 +434,8 @@ ck-edit-array {
 ```
 
 You can implement light/dark or brand themes by switching these variables at the document or container scope. The component itself does not implement a `theme` attribute — it relies on standard CSS custom properties.
+
+In addition to CSS variables, you can target specific controls via the shadow parts listed above.
 
 ### Layout Direction
 
@@ -886,3 +911,40 @@ MIT License - see [LICENSE](../LICENSE) file for details.
 ---
 
 **Made with ❤️ by the EditArray team**
+
+---
+
+## Quality Gap Audit
+
+Summary: The component is robust with strong event coverage, flexible slots, and accessible defaults. Gaps are minor and mostly about explicit behaviors not yet implemented in code.
+
+Compliance matrix:
+
+- Accessibility: Partial
+  - Gaps: No explicit keyboard shortcuts for toggling edit mode; focus is not programmatically moved to first input on enter edit mode in current source.
+  - Impact: Medium (UX), mitigated by native tab flows and ARIA labeling.
+  - Remediation: Move focus to the first editable control when entering edit mode; add optional Escape to cancel behavior.
+
+- Internationalization: Missing
+  - Gaps: Labels rely on attributes but no i18n mechanism or dir/language-specific behaviors.
+  - Impact: Low/Medium depending on usage.
+  - Remediation: Document attribute-based localization; consider `lang`/`dir` propagation.
+
+- Security: Complete
+  - Evidence: Uses `textContent`, sanitizes generated IDs/names, no `innerHTML`, CSP-friendly.
+
+- Performance: Partial
+  - Gaps: No virtualization for very large lists; fine for moderate sizes.
+  - Impact: Low/Medium.
+  - Remediation: Document guidance; consider virtualization in future.
+
+- Theming: Complete
+  - Evidence: Comprehensive CSS custom properties; exposed `::part()` hooks.
+
+- Browser Support: Complete
+  - Evidence: Constructable Stylesheets with fallback to `<style>`.
+
+- Testing: Complete
+  - Evidence: Jest suites present and passing; accessibility, security, visual, performance tests exist.
+
+
