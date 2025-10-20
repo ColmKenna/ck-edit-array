@@ -1538,7 +1538,7 @@ class EditArray extends HTMLElement {
     if (!itemsContainer) return;
     itemsContainer.innerHTML = "";
 
-    if (!Array.isArray(this.data_internal) || this.data_internal.length === 0) return;
+    if (!Array.isArray(this.data_internal) ) return;
 
     this.data_internal.forEach((item, index) =>
       this.renderItem(itemsContainer, item, index)
