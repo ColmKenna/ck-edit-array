@@ -26,6 +26,8 @@ The EditArray component follows modern web component best practices with a focus
 - Shadow DOM is constructed programmatically using `document.createElement` to avoid HTML injection via strings.
 - Slot content should be provided as regular elements (for example, `div` with `slot="display"`), not `<template>` tags. The component clones the slotted element directly.
 - A `slot="buttons"` can be provided to customize per-item buttons. Provide `<button data-action="edit">` and/or `<button data-action="delete">` inside that slotted element; the component enhances them per item.
+- Action buttons now expose a `part` attribute so consuming pages can style individual buttons via `::part()`. Available parts: `edit-button`, `delete-button`, `add-button`, `cancel-button`.
+- The action bar container itself is exposed via the `part="action-bar"` attribute so you can style the whole button area using `ck-edit-array::part(action-bar)`.
 - There is no `theme` attribute. Theming is achieved entirely via CSS custom properties exposed by the component.
 - The `item-direction` attribute/property toggles per-item layout between column (default) and row using a `:host([item-direction="row"])` selector in the shadow stylesheet.
 

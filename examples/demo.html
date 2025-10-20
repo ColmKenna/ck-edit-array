@@ -305,6 +305,13 @@
         --spacing-sm: 0.5rem;
       }
 
+      /* Example: style the edit, delete and add buttons via ::part() */
+      ck-edit-array::part(edit-button) { background: #6b46c1; border-color: #6b46c1; color: #fff; }
+      ck-edit-array::part(delete-button) { background: #e53e3e; border-color: #e53e3e; color: #fff; }
+      ck-edit-array::part(add-button) { box-shadow: 0 2px 6px rgba(0,0,0,0.12); }
+  /* Example: style the action bar container via ::part() */
+  ck-edit-array::part(action-bar) { padding: 0.5rem; display: flex; gap: 0.5rem; background: rgba(0,0,0,0.02); border-radius: 6px; }
+
       /* Demo-specific form styling */
       .demo-form-group {
         margin-bottom: 1rem;
@@ -388,7 +395,8 @@
       <!-- Basic Usage Demo -->
       <section class="demo-section">
         <h2>📝 Basic Usage - User Management</h2>
-        <p><strong>New Feature:</strong> Delete buttons now change to "Restore" when items are marked for deletion. Try deleting an item to see the button text change! You can also customize the restore button text using the <code>restore-label</code> attribute.</p>
+  <p><strong>New Feature:</strong> Delete buttons now change to "Restore" when items are marked for deletion. Try deleting an item to see the button text change! You can also customize the restore button text using the <code>restore-label</code> attribute.</p>
+  <p><strong>Styling Note:</strong> Action buttons now expose a <code>part</code> attribute so you can style them from outside the shadow DOM using <code>::part()</code>. Available parts: <code>edit-button</code>, <code>delete-button</code>, <code>add-button</code>, and <code>cancel-button</code>.</p>
         <div class="demo-grid">
           <div>
             <div class="demo-controls">

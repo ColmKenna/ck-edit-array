@@ -676,6 +676,8 @@ class EditArray extends HTMLElement {
 
     const actionBar = document.createElement('div');
     actionBar.className = 'action-bar';
+  // expose part for external styling via ::part()
+  actionBar.setAttribute('part', 'action-bar');
 
     container.appendChild(items);
     container.appendChild(actionBar);
@@ -1438,6 +1440,14 @@ class EditArray extends HTMLElement {
     const ariaLabel = this.getButtonAriaLabel(action, index);
     enhanced.setAttribute('aria-label', ariaLabel);
 
+    // Expose a part name so consumers can style the button via ::part()
+    // Use a consistent naming convention: `{action}-button` (e.g. edit-button)
+    try {
+      enhanced.setAttribute('part', `${action}-button`);
+    } catch (e) {
+      // Some environments may restrict attributes on certain elements; ignore silently
+    }
+
     // Get and add appropriate CSS classes
     const newClasses = this.getButtonClasses(action);
     
@@ -1465,6 +1475,8 @@ class EditArray extends HTMLElement {
     cancelBtn.className = "btn btn-sm btn-danger";
     cancelBtn.setAttribute('data-action', 'cancel');
     cancelBtn.setAttribute('aria-label', 'Cancel adding item');
+    // part for styling from outside
+    cancelBtn.setAttribute('part', 'cancel-button');
     return cancelBtn;
   }
 
@@ -1488,6 +1500,8 @@ class EditArray extends HTMLElement {
     deleteBtn.setAttribute('data-action', 'delete');
     deleteBtn.setAttribute('data-index', String(index));
     deleteBtn.setAttribute('aria-label', `${buttonText} item ${index + 1}`);
+    // expose part for styling
+    deleteBtn.setAttribute('part', 'delete-button');
     return deleteBtn;
   }
 
@@ -1507,6 +1521,8 @@ class EditArray extends HTMLElement {
     editBtn.setAttribute('data-action', 'edit');
     editBtn.setAttribute('data-index', String(index));
     editBtn.setAttribute('aria-label', `Edit item ${index + 1}`);
+    // expose part for styling consumers
+    editBtn.setAttribute('part', 'edit-button');
     return editBtn;
   }
 
@@ -1537,6 +1553,8 @@ class EditArray extends HTMLElement {
     addBtn.className = "btn btn-sm btn-success";
     addBtn.setAttribute('data-action', 'add');
     addBtn.setAttribute('aria-label', 'Add new item to the list');
+  // expose a part for consumers to style the add button
+  addBtn.setAttribute('part', 'add-button');
 
     if (actionBar) {
       actionBar.innerHTML = "";
