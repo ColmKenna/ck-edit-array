@@ -295,6 +295,13 @@ There is no `theme` attribute. Theming is accomplished through CSS custom proper
 - **Observer**: Updates `.edit-array-item` flex direction and keeps `justify-content: space-between`
 - **Usage**: Set to `"row"` to align item content and actions horizontally
 
+#### `action-bar-justify`
+- **Type**: `'start' | 'center' | 'end' | 'space-between' | 'space-around' | 'space-evenly'`
+- **Default**: `'start'`
+- **Reflects**: Attribute and property
+- **Observer**: CSS-based; no re-render required
+- **Description**: Controls `justify-content` of the `.action-bar` flex container used for global actions (e.g., Add button)
+
 #### `restore-label`
 - **Type**: String
 - **Default**: `"Restore"`
@@ -302,6 +309,24 @@ There is no `theme` attribute. Theming is accomplished through CSS custom proper
 - **Description**: Updates the text and ARIA labels of delete/restore buttons for items currently marked as deleted.
 
 #### Label attributes (not observed)
+#### `primitive-array`
+- Type: Boolean attribute
+- Default: not present (false)
+- Observed: Yes (triggers re-render)
+- Description: When present, the component treats each item as a primitive value for the purposes of generated form names. Inputs named `value` will be emitted as `arrayField[index]` (no `.value` suffix). Without this attribute, names follow the object convention `arrayField[index].value`.
+
+Example:
+
+```html
+<ck-edit-array array-field="client.uris" primitive-array>
+  <div slot="display">
+    <span data-display-for="value"></span>
+  </div>
+  <div slot="edit">
+    <input name="value" type="url" required />
+  </div>
+</ck-edit-array>
+```
 - `edit-label` (default: `"Edit"`) – Label for per‑item edit button
 - `save-label` (default: `"Save"`) – Label shown on the edit button while in edit mode
 - `delete-label` (default: `"Delete"`) – Label for per‑item delete button when not marked deleted

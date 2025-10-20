@@ -28,6 +28,7 @@ The EditArray component follows modern web component best practices with a focus
 - A `slot="buttons"` can be provided to customize per-item buttons. Provide `<button data-action="edit">` and/or `<button data-action="delete">` inside that slotted element; the component enhances them per item.
 - Action buttons now expose a `part` attribute so consuming pages can style individual buttons via `::part()`. Available parts: `edit-button`, `delete-button`, `add-button`, `cancel-button`.
 - The action bar container itself is exposed via the `part="action-bar"` attribute so you can style the whole button area using `ck-edit-array::part(action-bar)`.
+  Additionally, the `action-bar-justify` attribute controls the internal flex alignment without needing external CSS (maps to `justify-content`).
 - There is no `theme` attribute. Theming is achieved entirely via CSS custom properties exposed by the component.
 - The `item-direction` attribute/property toggles per-item layout between column (default) and row using a `:host([item-direction="row"])` selector in the shadow stylesheet.
 
@@ -83,6 +84,17 @@ const applyEditArrayStyles = (shadowRoot) => {
 
 - The base `.edit-array-item` flex container pins `justify-content: space-between` so content and controls stay balanced.
 - The `item-direction` attribute/property toggles between column (default) and row layouts by flipping `flex-direction`.
+
+#### Action Bar Justification
+
+- The `.action-bar` container is a flex row with a gap and default `justify-content: flex-start`.
+- The `action-bar-justify` attribute supports: `start`, `center`, `end`, `space-between`, `space-around`, `space-evenly`.
+- Each value maps to its corresponding `justify-content` value (e.g., `start` → `flex-start`).
+- Implemented via `:host([action-bar-justify="..."]) .action-bar { justify-content: ... }` selectors in the constructable stylesheet.
+
+#### Primitive array naming mode
+
+- A boolean attribute `primitive-array` toggles name generation for arrays of primitives. When enabled, the name binding logic in both edit and display template processing collapses `prefix.value` to just `prefix` for controls named `value`. Data binding still uses `data-name="value"` for update events.
 
 ### Shadow DOM Strategy
 

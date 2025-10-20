@@ -55,18 +55,20 @@ import 'edit-array-component';
 
 ### Attributes
 
-Note: Only `array-field`, `data`, and `restore-label` are observed for live updates. Other label-related attributes are read when items/buttons render or toggle.
+Note: `array-field`, `data`, `restore-label`, and `primitive-array` are observed for live updates. Other label-related attributes are read when items/buttons render or toggle.
 
 | Attribute | Type | Default | Observed | Description |
 |-----------|------|---------|----------|-------------|
 | `array-field` | `string` | - | Yes | Field name used for form submission (generates proper `name` attributes like `users[0].name`) |
 | `data` | `string` | `"[]"` | Yes | JSON string representation of the array data. Non-JSON strings are ignored when provided via attribute. |
 | `item-direction` | `"row" \| "column"` | `"column"` | No | Layout direction for each `.edit-array-item`. Set to `row` to align content/actions horizontally. |
+| `action-bar-justify` | `'start' | 'center' | 'end' | 'space-between' | 'space-around' | 'space-evenly'` | `'start'` | No | Controls how buttons in the action bar are justified. Maps to CSS `justify-content`. Default is `'start'` (flex-start). |
 | `edit-label` | `string` | `"Edit"` | No | Label text for edit buttons |
 | `save-label` | `string` | `"Save"` | No | Label text shown while editing |
 | `delete-label` | `string` | `"Delete"` | No | Label text for delete buttons |
 | `restore-label` | `string` | `"Restore"` | Yes | Label text for restore state; updates all deleted items when changed |
 | `cancel-label` | `string` | `"Cancel"` | No | Label text for cancel buttons (for brand new empty items) |
+| `primitive-array` | `boolean` | `false` | Yes | When present, treats each item as a primitive value. Inputs named `value` will generate form names like `arrayField[0]` (no `.value` suffix). Backwards-compatible default keeps `arrayField[0].value`. |
 
 ### Properties
 
@@ -301,6 +303,23 @@ Define the form interface for editing items:
 - Generated form names follow proper array notation for server submission
 - Support for all form control types: input, select, textarea, etc.
 
+#### Primitive arrays (strings, numbers, URLs)
+
+For arrays of primitive values, add the `primitive-array` attribute and use a single field named `value` in your templates. The component will emit names like `client.uris[0]` instead of `client.uris[0].value`:
+
+```html
+<ck-edit-array array-field="client.uris" primitive-array>
+  <div slot="display">
+    <span data-display-for="value"></span>
+  </div>
+  <div slot="edit">
+    <input name="value" type="url" placeholder="https://example.com" required />
+  </div>
+</ck-edit-array>
+```
+
+Without `primitive-array`, the generated field names will follow the object-style convention: `client.uris[0].value`.
+
 ### Buttons Slot (`slot="buttons"`)
 
 Optionally provide custom button templates for per-item actions. Place button elements with `data-action` attributes inside an element with `slot="buttons"` in the light DOM. The component will clone and enhance these templates per item (preserving your content and classes) and add required data attributes and ARIA labels:
@@ -330,6 +349,16 @@ ck-edit-array::part(action-bar) {
   display: flex;
   justify-content: flex-end;
 }
+### Action Bar Layout
+
+You can control the alignment of the global action bar (which hosts the Add button) via the `action-bar-justify` attribute:
+
+```html
+<ck-edit-array action-bar-justify="center"></ck-edit-array>
+```
+
+Accepted values: `start`, `center`, `end`, `space-between`, `space-around`, `space-evenly`. The attribute maps to `justify-content` on the internal `.action-bar` flex container. When the attribute is omitted or invalid, the layout defaults to `start` (flex-start).
+
 
 ck-edit-array::part(edit-button) {
   text-transform: uppercase;

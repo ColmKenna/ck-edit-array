@@ -392,11 +392,64 @@
         </div>
       </section>
 
+      <!-- Empty Array Demo -->
+      <section class="demo-section">
+        <h2>🧪 Empty Array Example</h2>
+        <p>
+          This section starts with an empty array. By design, the component renders nothing until it
+          has at least one item. Use the controls to keep it empty, or create the first item.
+        </p>
+        <div class="demo-grid">
+          <div>
+            <div class="demo-controls">
+              <h4>Empty Array Controls</h4>
+              <div class="example-data-buttons">
+                <button onclick="setEmptyDemoEmpty()">Load Empty</button>
+                <button onclick="createFirstEmptyDemoItem()">Create First Item</button>
+              </div>
+            </div>
+
+            <ck-edit-array id="demoEmpty" array-field="examples.empty" item-direction="row">
+              <div slot="display">
+                <div class="demo-form-group">
+                  🔹 <strong data-display-for="name"></strong>
+                </div>
+              </div>
+              <div slot="edit">
+                <div class="demo-form-group">
+                  <label>Name</label>
+                  <input name="name" placeholder="Enter a name" />
+                </div>
+              </div>
+            </ck-edit-array>
+          </div>
+
+          <div>
+            <div class="event-log">
+              <h4>📊 Empty Array Log</h4>
+              <div id="eventLogEmpty"></div>
+              <button
+                onclick="clearEventLog('eventLogEmpty')"
+                style="margin-top: 0.5rem; font-size: 0.8rem; padding: 0.25rem 0.5rem"
+              >
+                Clear Log
+              </button>
+            </div>
+          </div>
+        </div>
+        <p style="font-size: 0.9rem; opacity: 0.8; margin-top: 0.5rem;">
+          Tip: If you want an always-visible Add button for an empty array, set <code>.data</code> to an
+          array with one empty object (e.g., <code>[{}]</code>), or use a separate button to call
+          <code>el.data = [...el.data, {}]</code> as shown above.
+        </p>
+      </section>
+
       <!-- Basic Usage Demo -->
       <section class="demo-section">
         <h2>📝 Basic Usage - User Management</h2>
   <p><strong>New Feature:</strong> Delete buttons now change to "Restore" when items are marked for deletion. Try deleting an item to see the button text change! You can also customize the restore button text using the <code>restore-label</code> attribute.</p>
   <p><strong>Styling Note:</strong> Action buttons now expose a <code>part</code> attribute so you can style them from outside the shadow DOM using <code>::part()</code>. Available parts: <code>edit-button</code>, <code>delete-button</code>, <code>add-button</code>, and <code>cancel-button</code>.</p>
+  <p><strong>Layout Note:</strong> You can control the action bar alignment using <code>action-bar-justify</code> (values: <code>start</code>, <code>center</code>, <code>end</code>, <code>space-between</code>, <code>space-around</code>, <code>space-evenly</code>).</p>
         <div class="demo-grid">
           <div>
             <div class="demo-controls">
@@ -470,6 +523,17 @@
                   <select name="department">
                     <option value="engineering">Engineering</option>
                     <option value="marketing">Marketing</option>
+                    <div class="control-group">
+                      <label for="actionBarJustify">action-bar-justify</label>
+                      <select id="actionBarJustify">
+                        <option value="start" selected>start (flex-start)</option>
+                        <option value="center">center</option>
+                        <option value="end">end (flex-end)</option>
+                        <option value="space-between">space-between</option>
+                        <option value="space-around">space-around</option>
+                        <option value="space-evenly">space-evenly</option>
+                      </select>
+                    </div>
                     <option value="sales">Sales</option>
                     <option value="hr">Human Resources</option>
                     <option value="finance">Finance</option>
@@ -674,6 +738,99 @@
               <div id="eventLog2"></div>
               <button
                 onclick="clearEventLog('eventLog2')"
+                style="margin-top: 0.5rem; font-size: 0.8rem; padding: 0.25rem 0.5rem"
+              >
+                Clear Log
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Simple Array of Strings Demo -->
+      <section class="demo-section">
+        <h2>📞 Simple Array of Strings - Phone Numbers</h2>
+        <p>This example shows how to use the component for a plain array of strings, such as <code>person.phoneNumbers</code>. For primitive strings, use the field name <code>value</code> in your templates.</p>
+        <div class="demo-grid">
+          <div>
+            <div class="demo-controls">
+              <h4>Phone Numbers Controls</h4>
+              <div class="example-data-buttons">
+                <button onclick="loadPhoneData('sample')">Load Sample Phone Numbers</button>
+                <button onclick="loadPhoneData('empty')">Clear</button>
+                <button onclick="addPhoneNumber()">Add Phone Number</button>
+              </div>
+            </div>
+
+            <ck-edit-array id="demoPhones" array-field="person.phoneNumbers" item-direction="row">
+              <div slot="display">
+                <div class="demo-form-group">
+                  📞 <strong data-display-for="value"></strong>
+                </div>
+              </div>
+              <div slot="edit">
+                <div class="demo-form-group">
+                  <label>Phone Number</label>
+                  <input name="value" placeholder="(555) 123-4567" />
+                </div>
+              </div>
+            </ck-edit-array>
+          </div>
+
+          <div>
+            <div class="event-log">
+              <h4>📊 Phone Numbers Log</h4>
+              <div id="eventLogPhones"></div>
+              <button
+                onclick="clearEventLog('eventLogPhones')"
+                style="margin-top: 0.5rem; font-size: 0.8rem; padding: 0.25rem 0.5rem"
+              >
+                Clear Log
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Primitive Array (URIs) Demo -->
+      <section class="demo-section">
+        <h2>🔗 Primitive Array - Client URIs</h2>
+        <p>
+          This example demonstrates the <code>primitive-array</code> attribute. Each item is a single primitive value.
+          Generated form names will be <code>client.uris[0]</code>, <code>client.uris[1]</code>, etc. (no <code>.value</code> suffix).
+        </p>
+        <div class="demo-grid">
+          <div>
+            <div class="demo-controls">
+              <h4>Client URIs Controls</h4>
+              <div class="example-data-buttons">
+                <button onclick="loadUris('sample')">Load Sample URIs</button>
+                <button onclick="loadUris('empty')">Clear</button>
+                <button onclick="addUri()">Add URI</button>
+              </div>
+            </div>
+
+            <ck-edit-array id="demoUris" array-field="client.uris" primitive-array item-direction="row">
+              <div slot="display">
+                <div class="demo-form-group">
+                  🔗 <strong data-display-for="value"></strong>
+                </div>
+              </div>
+              <div slot="edit">
+                <div class="demo-form-group">
+                  <label>URI</label>
+                  <input name="value" type="url" placeholder="https://example.com/callback" required />
+                </div>
+              </div>
+            </ck-edit-array>
+          </div>
+
+          <div>
+            <div class="event-log">
+              <h4>📊 URIs Log</h4>
+              <div id="eventLogUris"></div>
+              <button
+                onclick="clearEventLog('eventLogUris')"
                 style="margin-top: 0.5rem; font-size: 0.8rem; padding: 0.25rem 0.5rem"
               >
                 Clear Log
@@ -1028,8 +1185,8 @@ editArray.restoreLabel = 'Undo Delete';</pre
 
       // Set up event listeners for all demos
       function setupEventListeners() {
-        const demos = ['demo1', 'demo2', 'demo3', 'demo4', 'demoDirection'];
-        const logIds = ['eventLog1', 'eventLog2', 'eventLog3', 'eventLog4', 'eventLogDirection'];
+  const demos = ['demo1', 'demo2', 'demo3', 'demo4', 'demoDirection', 'demoPhones', 'demoUris', 'demoEmpty'];
+  const logIds = ['eventLog1', 'eventLog2', 'eventLog3', 'eventLog4', 'eventLogDirection', 'eventLogPhones', 'eventLogUris', 'eventLogEmpty'];
 
         demos.forEach((demoId, index) => {
           const demo = document.getElementById(demoId);
@@ -1065,7 +1222,86 @@ editArray.restoreLabel = 'Undo Delete';</pre
         });
       }
 
+      // Simple Array of Strings (Phone Numbers) demo helpers
+      function loadPhoneData(type) {
+        const el = document.getElementById('demoPhones');
+        if (!el) return;
+        switch (type) {
+          case 'sample':
+            // For arrays of primitives, map to objects using a `value` field for binding in templates
+            el.data = [
+              { value: '(555) 111-2222' },
+              { value: '(555) 333-4444' },
+              { value: '(555) 987-6543' }
+            ];
+            break;
+          case 'empty':
+          default:
+            el.data = [];
+            break;
+        }
+      }
+
+      function addPhoneNumber() {
+        const el = document.getElementById('demoPhones');
+        if (!el) return;
+        // Add an empty item so edit template is visible and user can type
+        el.addItem({ value: '' });
+      }
+
       // Example data functions
+
+      // Primitive URIs demo helpers
+      function loadUris(type) {
+        const el = document.getElementById('demoUris');
+        if (!el) return;
+        switch (type) {
+          case 'sample':
+            el.data = [
+              { value: 'https://app.example.com/callback' },
+              { value: 'https://app.example.com/redirect' }
+            ];
+            break;
+          case 'empty':
+          default:
+            el.data = [];
+            break;
+        }
+      }
+
+      function addUri() {
+        const el = document.getElementById('demoUris');
+        if (!el) return;
+        el.addItem({ value: '' });
+      }
+
+      // Empty demo helpers
+      function setEmptyDemoEmpty() {
+        const el = document.getElementById('demoEmpty');
+        if (!el) return;
+        el.data = [];
+        logEvent('eventLogEmpty', 'Data Loaded', { type: 'empty', itemCount: 0 });
+      }
+
+      function createFirstEmptyDemoItem() {
+        const el = document.getElementById('demoEmpty');
+        if (!el) return;
+        const current = Array.isArray(el.data) ? el.data : [];
+        const nextIndex = current.length;
+        // Setting .data triggers a full render; then enter edit mode on the new item
+        el.data = [...current, {}];
+        try {
+          // In most environments the render is sync; guard with a microtask to be safe
+          setTimeout(() => {
+            if (typeof el.toggleEditMode === 'function') {
+              el.toggleEditMode(nextIndex);
+            }
+          }, 0);
+        } catch (e) {
+          // no-op; demo-only helper
+        }
+        logEvent('eventLogEmpty', 'Item Added', { index: nextIndex });
+      }
       function loadExampleData(type) {
         const demo1 = document.getElementById('demo1');
 
@@ -1335,6 +1571,27 @@ editArray.restoreLabel = 'Undo Delete';</pre
         loadProductData('sample'); // Initialize direction demo
         generateLargeDataset();
         updateItemCount();
+
+        // Wire up action-bar-justify control for demo1
+        const justifySelect = document.getElementById('actionBarJustify');
+        const demo1 = document.getElementById('demo1');
+        if (justifySelect && demo1) {
+          justifySelect.addEventListener('change', (e) => {
+            const target = e.target || justifySelect;
+            const val = (target && target.value) || 'start';
+            if (val === 'start') {
+              demo1.removeAttribute('action-bar-justify');
+            } else {
+              demo1.setAttribute('action-bar-justify', val);
+            }
+          });
+        }
+
+        // Initialize phones demo
+        loadPhoneData('sample');
+
+        // Initialize URIs demo (primitive array)
+        loadUris('sample');
       });
     </script>
   </body>
