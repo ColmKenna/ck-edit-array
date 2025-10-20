@@ -87,7 +87,8 @@ const EDIT_ARRAY_CSS: string = `
   }
 
   .edit-container, .display-container {
-    margin-bottom: var(--spacing-md, 0.5rem)
+    margin-bottom: var(--spacing-md, 0.5rem);
+    flex-grow: 1;
   }
 
   .edit-array-item.deleted { 
