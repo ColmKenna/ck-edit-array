@@ -2,7 +2,7 @@
 
 **Version**: 1.0.0  
 **Status**: Release Candidate  
-**Last Updated**: 2024  
+**Last Updated**: 2025  
 
 ## ðŸ“‹ Component Overview
 
@@ -135,17 +135,22 @@ This specification defines:
 <ck-edit-array
   data='[{"name": "John", "email": "john@example.com"}]'
   array-field="users"
-  theme="light"
 >
-  <template slot="display">
+  <div slot="display">
     <strong data-display-for="name"></strong>
     <span data-display-for="email"></span>
-  </template>
+  </div>
   
-  <template slot="edit">
+  <div slot="edit">
     <input type="text" name="name" placeholder="Full Name" required>
     <input type="email" name="email" placeholder="Email Address" required>
-  </template>
+  </div>
+
+  <!-- Optional custom buttons slot -->
+  <div slot="buttons">
+    <button data-action="edit" class="btn btn-sm">Edit</button>
+    <button data-action="delete" class="btn btn-sm">Delete</button>
+  </div>
 </ck-edit-array>
 ```
 
@@ -165,12 +170,11 @@ This specification defines:
 - **Validation**: Sanitized to remove unsafe characters
 - **Usage**: When set, generates names like `users[0].name`
 
-#### `theme: string`
-- **Type**: String
-- **Default**: `"light"`
-- **Description**: Visual theme for component styling
-- **Valid Values**: `"light"`, `"dark"`, `"forest-green"`, `"warm-sunset"`
-- **Reactivity**: Changes apply immediately
+#### `itemDirection: 'row' | 'column'`
+- **Type**: String union
+- **Default**: `"column"`
+- **Description**: Controls flex direction of each `.edit-array-item` in the shadow DOM
+- **Reactivity**: Setting property or `item-direction` attribute to `row` applies row layout
 
 ### Methods
 
@@ -182,13 +186,13 @@ This specification defines:
 - **Side Effects**: Triggers `item-added` and `change` events
 - **Example**: `editArray.addItem({ name: '', email: '' })`
 
-#### `deleteItem(index: number): boolean`
+#### `removeItem(index: number): Object | null`
 - **Description**: Removes an item from the array
 - **Parameters**: 
   - `index`: Zero-based index of item to remove
-- **Returns**: `true` if successful, `false` if index invalid
+- **Returns**: Removed item object or `null` if invalid index
 - **Side Effects**: Triggers `item-deleted` and `change` events
-- **Example**: `editArray.deleteItem(0)`
+- **Example**: `editArray.removeItem(0)`
 
 #### `updateItem(index: number, fieldName: string, value: any): boolean`
 - **Description**: Updates a specific field of an existing item
@@ -236,7 +240,7 @@ This specification defines:
 - **Type**: CustomEvent
 - **Bubbles**: Yes  
 - **Composed**: Yes
-- **Detail**: `{ item: Object, index: number, field: string, value: any }`
+- **Detail**: `{ index: number, fieldName: string, value: any, oldValue: any, item: Object, data: Array<Object> }`
 - **Fired When**: Existing item field is modified
 - **Example**:
   ```javascript
@@ -270,10 +274,7 @@ This specification defines:
 - **Observer**: Updates form field naming
 - **Sanitization**: Removes unsafe characters for DOM safety
 
-#### `theme`
-- **Reflects**: Property value
-- **Observer**: Updates CSS class for theming
-- **Validation**: Invalid themes fall back to "light"
+There is no `theme` attribute. Theming is accomplished through CSS custom properties applied to the host or document.
 
 #### `item-direction`
 - **Reflects**: Property value (`"row"` or `"column"`)
@@ -288,7 +289,7 @@ This specification defines:
 **Purpose**: Defines the read-only appearance of array items
 
 **Requirements**:
-- MUST contain a `<template>` element
+- Provide an element in light DOM with `slot="display"`
 - SHOULD use `data-display-for` attributes for field binding
 - MAY contain arbitrary HTML structure
 - MUST NOT contain form controls
@@ -314,7 +315,15 @@ This specification defines:
 **Purpose**: Defines the editable form interface for array items
 
 **Requirements**:
-- MUST contain a `<template>` element  
+- Provide an element in light DOM with `slot="edit"`  
+### Buttons Slot (`slot="buttons")`
+
+Provide an optional element in light DOM with `slot="buttons"` that contains button templates with `data-action` attributes:
+
+- `data-action="edit"` – template for the per-item edit/save toggle button
+- `data-action="delete"` – template for the per-item delete/restore toggle button
+
+The component will clone and enhance these templates for each item, preserving your custom markup and classes while adding required attributes (`data-index`, ARIA labels) and behavior.
 - SHOULD contain form controls (`<input>`, `<select>`, `<textarea>`)
 - MUST use `name` attributes for field identification
 - MAY include validation attributes
@@ -495,7 +504,7 @@ The component is compatible with strict Content Security Policies:
 - Delete item operation: < 50ms
 - Memory usage: Linear growth with data size
 
-## ðŸŒ Browser Compatibility
+## 🌐 Browser Compatibility
 
 ### Supported Browsers
 
