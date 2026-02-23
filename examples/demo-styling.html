@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EditArray – Styling with ::part() Selectors</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: 'Segoe UI', Roboto, -apple-system, BlinkMacSystemFont, sans-serif;
+        line-height: 1.6;
+        margin: 0;
+        padding: 0;
+        background: #f0f2f5;
+        color: #1f2937;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 2rem;
+      }
+
+      .header h1 {
+        color: #3b82f6;
+        margin-bottom: 0.25rem;
+      }
+
+      .header p {
+        opacity: 0.7;
+        font-size: 1.05rem;
+      }
+
+      .header nav {
+        margin-top: 0.5rem;
+      }
+
+      .header nav a {
+        color: #3b82f6;
+        margin: 0 0.5rem;
+      }
+
+      .demo-section {
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      }
+
+      .demo-section h2 {
+        color: #3b82f6;
+        margin-top: 0;
+        border-bottom: 2px solid #e5e7eb;
+        padding-bottom: 0.5rem;
+      }
+
+      .demo-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+      }
+
+      @media (max-width: 768px) {
+        .demo-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .code-block {
+        background: #1e293b;
+        color: #e2e8f0;
+        padding: 1rem 1.25rem;
+        border-radius: 8px;
+        overflow-x: auto;
+        font-family: 'Consolas', 'Monaco', 'Fira Code', monospace;
+        font-size: 0.85rem;
+        line-height: 1.5;
+        white-space: pre;
+      }
+
+      .code-block .comment { color: #94a3b8; }
+      .code-block .selector { color: #7dd3fc; }
+      .code-block .property { color: #c4b5fd; }
+      .code-block .value { color: #86efac; }
+
+      .parts-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.9rem;
+        margin: 1rem 0;
+      }
+
+      .parts-table th {
+        background: #f1f5f9;
+        text-align: left;
+        padding: 0.5rem 0.75rem;
+        border-bottom: 2px solid #e2e8f0;
+      }
+
+      .parts-table td {
+        padding: 0.5rem 0.75rem;
+        border-bottom: 1px solid #f1f5f9;
+      }
+
+      .parts-table code {
+        background: #f1f5f9;
+        padding: 0.15rem 0.4rem;
+        border-radius: 4px;
+        font-size: 0.85em;
+        color: #6366f1;
+      }
+
+      /* ============================
+         Style preset classes
+         ============================ */
+
+      /* --- Default / Minimal preset --- */
+      .preset-default ck-edit-array::part(input),
+      .preset-default ck-edit-array::part(select),
+      .preset-default ck-edit-array::part(textarea) {
+        width: 100%;
+        padding: 0.5rem 0.75rem;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        font-size: 0.95rem;
+        font-family: inherit;
+        transition: border-color 0.2s, box-shadow 0.2s;
+      }
+
+      .preset-default ck-edit-array::part(input):focus,
+      .preset-default ck-edit-array::part(select):focus,
+      .preset-default ck-edit-array::part(textarea):focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+      }
+
+      .preset-default ck-edit-array::part(label) {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+        font-size: 0.9rem;
+        color: #374151;
+      }
+
+      .preset-default ck-edit-array::part(edit-container) {
+        background: #f9fafb;
+        padding: 1rem;
+        border-radius: 8px;
+        border: 1px solid #e5e7eb;
+      }
+
+      /* --- Rounded / Pill preset --- */
+      .preset-rounded ck-edit-array::part(input),
+      .preset-rounded ck-edit-array::part(select),
+      .preset-rounded ck-edit-array::part(textarea) {
+        width: 100%;
+        padding: 0.6rem 1.25rem;
+        border: 2px solid #e0e7ff;
+        border-radius: 999px;
+        font-size: 0.95rem;
+        font-family: inherit;
+        background: #eef2ff;
+        transition: all 0.2s;
+      }
+
+      .preset-rounded ck-edit-array::part(textarea) {
+        border-radius: 16px;
+      }
+
+      .preset-rounded ck-edit-array::part(input):focus,
+      .preset-rounded ck-edit-array::part(select):focus,
+      .preset-rounded ck-edit-array::part(textarea):focus {
+        outline: none;
+        border-color: #6366f1;
+        background: #fff;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+      }
+
+      .preset-rounded ck-edit-array::part(label) {
+        display: block;
+        font-weight: 700;
+        margin-bottom: 0.35rem;
+        font-size: 0.85rem;
+        color: #6366f1;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .preset-rounded ck-edit-array::part(edit-container) {
+        background: linear-gradient(135deg, #eef2ff 0%, #faf5ff 100%);
+        padding: 1.25rem;
+        border-radius: 16px;
+        border: 1px solid #e0e7ff;
+      }
+
+      .preset-rounded ck-edit-array::part(item) {
+        border-color: #c7d2fe;
+        border-radius: 20px;
+      }
+
+      /* --- Dark preset --- */
+      .preset-dark {
+        background: #111827;
+        border-color: #374151;
+        color: #f9fafb;
+      }
+
+      .preset-dark h2 {
+        color: #60a5fa;
+        border-bottom-color: #374151;
+      }
+
+      .preset-dark ck-edit-array {
+        --border-color: #4b5563;
+        --button-primary-bg: #6366f1;
+        --button-primary-hover-bg: #4f46e5;
+        --button-success-bg: #10b981;
+        --button-danger-bg: #ef4444;
+        --button-secondary-bg: #374151;
+        --button-secondary-color: #e5e7eb;
+        --button-secondary-border: #4b5563;
+        --error-color: #f87171;
+      }
+
+      .preset-dark ck-edit-array::part(input),
+      .preset-dark ck-edit-array::part(select),
+      .preset-dark ck-edit-array::part(textarea) {
+        width: 100%;
+        padding: 0.5rem 0.75rem;
+        border: 1px solid #4b5563;
+        border-radius: 6px;
+        font-size: 0.95rem;
+        font-family: inherit;
+        background: #1f2937;
+        color: #f9fafb;
+        transition: border-color 0.2s, box-shadow 0.2s;
+      }
+
+      .preset-dark ck-edit-array::part(input):focus,
+      .preset-dark ck-edit-array::part(select):focus,
+      .preset-dark ck-edit-array::part(textarea):focus {
+        outline: none;
+        border-color: #6366f1;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+      }
+
+      .preset-dark ck-edit-array::part(label) {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+        font-size: 0.9rem;
+        color: #9ca3af;
+      }
+
+      .preset-dark ck-edit-array::part(edit-container) {
+        background: #1f2937;
+        padding: 1rem;
+        border-radius: 8px;
+        border: 1px solid #374151;
+      }
+
+      .preset-dark ck-edit-array::part(item) {
+        border-color: #374151;
+      }
+
+      .preset-dark ck-edit-array::part(action-bar) {
+        border-top: 1px solid #374151;
+        padding-top: 0.75rem;
+        margin-top: 0.5rem;
+      }
+
+      /* --- Underline / Material preset --- */
+      .preset-underline ck-edit-array::part(input),
+      .preset-underline ck-edit-array::part(select),
+      .preset-underline ck-edit-array::part(textarea) {
+        width: 100%;
+        padding: 0.5rem 0;
+        border: none;
+        border-bottom: 2px solid #d1d5db;
+        border-radius: 0;
+        font-size: 1rem;
+        font-family: inherit;
+        background: transparent;
+        transition: border-color 0.3s;
+      }
+
+      .preset-underline ck-edit-array::part(input):focus,
+      .preset-underline ck-edit-array::part(select):focus,
+      .preset-underline ck-edit-array::part(textarea):focus {
+        outline: none;
+        border-bottom-color: #10b981;
+      }
+
+      .preset-underline ck-edit-array::part(label) {
+        display: block;
+        font-weight: 500;
+        margin-bottom: 0.15rem;
+        font-size: 0.8rem;
+        color: #10b981;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      .preset-underline ck-edit-array::part(edit-container) {
+        padding: 1rem 0.5rem;
+      }
+
+      /* Style selector buttons */
+      .style-selector {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        margin-bottom: 1.5rem;
+      }
+
+      .style-btn {
+        padding: 0.5rem 1.25rem;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        background: #fff;
+        color: #374151;
+        cursor: pointer;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: all 0.2s;
+      }
+
+      .style-btn:hover {
+        border-color: #3b82f6;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      }
+
+      .style-btn.active {
+        border-color: #3b82f6;
+        background: #3b82f6;
+        color: #fff;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header class="header">
+        <h1>🎨 Styling with <code>::part()</code></h1>
+        <p>External styling of Shadow DOM elements using CSS <code>::part()</code> selectors</p>
+        <nav>
+          <a href="demo.html">Main demo</a> |
+          <a href="demo-advanced.html">Advanced demo</a> |
+          <a href="demo-button-slots.html">Button slots</a>
+        </nav>
+      </header>
+
+      <!-- Available Parts Reference -->
+      <section class="demo-section">
+        <h2>📋 Available CSS Parts</h2>
+        <p>The component exposes these <code>part</code> attributes on its Shadow DOM elements:</p>
+        <table class="parts-table">
+          <thead>
+            <tr>
+              <th>Part</th>
+              <th>Element</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><code>container</code></td><td>Root wrapper</td><td>The outer container for the whole component</td></tr>
+            <tr><td><code>items-container</code></td><td>Items list</td><td>Wraps all item rows</td></tr>
+            <tr><td><code>action-bar</code></td><td>Action bar</td><td>Bottom bar with the "Add" button</td></tr>
+            <tr><td><code>item</code></td><td>Item wrapper</td><td>Each individual item row</td></tr>
+            <tr><td><code>display-container</code></td><td>Display clone</td><td>Read-only content area</td></tr>
+            <tr><td><code>edit-container</code></td><td>Edit wrapper</td><td>Edit form container</td></tr>
+            <tr><td><code>button-bar</code></td><td>Button group</td><td>Edit / Delete / Cancel buttons container</td></tr>
+            <tr><td><code>add-button</code></td><td>Add button</td><td>The "Add New Item" button</td></tr>
+            <tr><td><code>input</code></td><td><code>&lt;input&gt;</code></td><td>All cloned inputs in the edit template</td></tr>
+            <tr><td><code>select</code></td><td><code>&lt;select&gt;</code></td><td>All cloned selects in the edit template</td></tr>
+            <tr><td><code>textarea</code></td><td><code>&lt;textarea&gt;</code></td><td>All cloned textareas in the edit template</td></tr>
+            <tr><td><code>label</code></td><td><code>&lt;label&gt;</code></td><td>All cloned labels in the edit template</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- Interactive Style Presets -->
+      <section class="demo-section" id="presetSection">
+        <h2>🎨 Interactive Style Presets</h2>
+        <p>Click a preset to instantly restyle the component. All styling is applied purely via <code>::part()</code> selectors — no JavaScript is involved in the style changes.</p>
+
+        <div class="style-selector">
+          <button class="style-btn active" onclick="applyPreset('default')">Default</button>
+          <button class="style-btn" onclick="applyPreset('rounded')">Rounded / Pill</button>
+          <button class="style-btn" onclick="applyPreset('dark')">Dark Mode</button>
+          <button class="style-btn" onclick="applyPreset('underline')">Material / Underline</button>
+        </div>
+
+        <div id="presetDemo" class="preset-default">
+          <ck-edit-array id="styledDemo" array-field="team">
+            <div slot="display">
+              <div>
+                <strong data-display-for="name"></strong>
+                <div style="font-size: 0.9rem; opacity: 0.8;">
+                  📧 <span data-display-for="email"></span>
+                  · 🏷️ <span data-display-for="role"></span>
+                </div>
+              </div>
+            </div>
+            <div slot="edit">
+              <label>Full Name *</label>
+              <input name="name" required placeholder="Enter full name" />
+              <label>Email *</label>
+              <input name="email" type="email" required placeholder="user@example.com" />
+              <label>Role</label>
+              <select name="role">
+                <option value="developer">Developer</option>
+                <option value="designer">Designer</option>
+                <option value="manager">Manager</option>
+                <option value="qa">QA Engineer</option>
+              </select>
+            </div>
+          </ck-edit-array>
+        </div>
+      </section>
+
+      <!-- Code Examples -->
+      <section class="demo-section">
+        <h2>💻 Code Examples</h2>
+
+        <h3>Basic Input Styling</h3>
+        <div class="code-block"><span class="comment">/* Style all inputs, selects, and textareas */</span>
+<span class="selector">ck-edit-array::part(input)</span>,
+<span class="selector">ck-edit-array::part(select)</span>,
+<span class="selector">ck-edit-array::part(textarea)</span> {
+  <span class="property">width</span>: <span class="value">100%</span>;
+  <span class="property">padding</span>: <span class="value">0.5rem 0.75rem</span>;
+  <span class="property">border</span>: <span class="value">1px solid #d1d5db</span>;
+  <span class="property">border-radius</span>: <span class="value">6px</span>;
+  <span class="property">font-size</span>: <span class="value">0.95rem</span>;
+  <span class="property">font-family</span>: <span class="value">inherit</span>;
+}
+
+<span class="selector">ck-edit-array::part(input):focus</span> {
+  <span class="property">outline</span>: <span class="value">none</span>;
+  <span class="property">border-color</span>: <span class="value">#3b82f6</span>;
+  <span class="property">box-shadow</span>: <span class="value">0 0 0 3px rgba(59, 130, 246, 0.15)</span>;
+}</div>
+
+        <h3>Edit Container Background</h3>
+        <div class="code-block"><span class="selector">ck-edit-array::part(edit-container)</span> {
+  <span class="property">background</span>: <span class="value">#f9fafb</span>;
+  <span class="property">padding</span>: <span class="value">1rem</span>;
+  <span class="property">border-radius</span>: <span class="value">8px</span>;
+  <span class="property">border</span>: <span class="value">1px solid #e5e7eb</span>;
+}</div>
+
+        <h3>Label Styling</h3>
+        <div class="code-block"><span class="selector">ck-edit-array::part(label)</span> {
+  <span class="property">display</span>: <span class="value">block</span>;
+  <span class="property">font-weight</span>: <span class="value">600</span>;
+  <span class="property">margin-bottom</span>: <span class="value">0.25rem</span>;
+  <span class="property">color</span>: <span class="value">#374151</span>;
+}</div>
+
+        <h3>Scoped Styling (Target Specific Instances)</h3>
+        <div class="code-block"><span class="comment">/* Only style inputs in a specific component instance */</span>
+<span class="selector">#my-component::part(input)</span> {
+  <span class="property">border-color</span>: <span class="value">#10b981</span>;
+}
+
+<span class="comment">/* Style inputs inside a wrapper class */</span>
+<span class="selector">.dark-form ck-edit-array::part(input)</span> {
+  <span class="property">background</span>: <span class="value">#1f2937</span>;
+  <span class="property">color</span>: <span class="value">#f9fafb</span>;
+  <span class="property">border-color</span>: <span class="value">#4b5563</span>;
+}</div>
+      </section>
+
+    </div>
+
+    <script type="module" src="../dist/ck-edit-array.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const demo = document.getElementById('styledDemo');
+        if (demo) {
+          demo.data = [
+            { name: 'Alice Chen', email: 'alice@example.com', role: 'developer' },
+            { name: 'Bob Smith', email: 'bob@example.com', role: 'designer' },
+            { name: 'Carol White', email: 'carol@example.com', role: 'manager' },
+          ];
+        }
+      });
+
+      function applyPreset(preset) {
+        const wrapper = document.getElementById('presetDemo');
+        const section = document.getElementById('presetSection');
+
+        // Remove all preset classes
+        wrapper.className = `preset-${preset}`;
+
+        // Also toggle dark on the section itself for background
+        if (preset === 'dark') {
+          section.classList.add('preset-dark');
+        } else {
+          section.classList.remove('preset-dark');
+        }
+
+        // Update active button
+        document.querySelectorAll('.style-btn').forEach(btn => {
+          btn.classList.remove('active');
+        });
+        event.target.classList.add('active');
+      }
+    </script>
+  </body>
+</html>

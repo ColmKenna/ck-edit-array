@@ -35,11 +35,11 @@ interface ItemChangeEventDetail extends ItemEventDetail {
 }
 
 // Custom Event Types
-interface EditArrayChangeEvent extends CustomEvent<EditArrayEventDetail> {}
-interface EditArrayItemAddedEvent extends CustomEvent<ItemEventDetail> {}
-interface EditArrayItemUpdatedEvent extends CustomEvent<ItemUpdateEventDetail> {}
-interface EditArrayItemDeletedEvent extends CustomEvent<ItemEventDetail> {}
-interface EditArrayItemChangeEvent extends CustomEvent<ItemChangeEventDetail> {}
+interface EditArrayChangeEvent extends CustomEvent<EditArrayEventDetail> { }
+interface EditArrayItemAddedEvent extends CustomEvent<ItemEventDetail> { }
+interface EditArrayItemUpdatedEvent extends CustomEvent<ItemUpdateEventDetail> { }
+interface EditArrayItemDeletedEvent extends CustomEvent<ItemEventDetail> { }
+interface EditArrayItemChangeEvent extends CustomEvent<ItemChangeEventDetail> { }
 
 // Utility types for form validation
 type FormElement = HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
@@ -203,26 +203,26 @@ const EDIT_ARRAY_SHEET: CSSStyleSheet | null = (() => {
   }
 })();
 
-const extractFromString= (value: string): EditArrayItem[] => {
-    const trimmed = value.trim();
-    if (trimmed === '') return [];
+const extractFromString = (value: string): EditArrayItem[] => {
+  const trimmed = value.trim();
+  if (trimmed === '') return [];
 
-    // Try to parse as JSON first
-    if (trimmed.startsWith('[') || trimmed.startsWith('{')) {
-      try {
-        const parsed = JSON.parse(trimmed);
-        return Array.isArray(parsed) ? parsed : [parsed];
-      } catch (err) {
-        // Parsing may fail for malformed JSON; warn in debug but return empty array to remain safe.
-        if (typeof console !== 'undefined' && console && console.warn) {
-          console.warn('EditArray: Failed to parse data attribute as JSON array', err);
-        }
-        return [];
+  // Try to parse as JSON first
+  if (trimmed.startsWith('[') || trimmed.startsWith('{')) {
+    try {
+      const parsed = JSON.parse(trimmed);
+      return Array.isArray(parsed) ? parsed : [parsed];
+    } catch (err) {
+      // Parsing may fail for malformed JSON; warn in debug but return empty array to remain safe.
+      if (typeof console !== 'undefined' && console && console.warn) {
+        console.warn('EditArray: Failed to parse data attribute as JSON array', err);
       }
+      return [];
     }
+  }
 
-    // For non-JSON strings, wrap in an object so it matches EditArrayItem type
-    return [{ value: trimmed } as EditArrayItem];
+  // For non-JSON strings, wrap in an object so it matches EditArrayItem type
+  return [{ value: trimmed } as EditArrayItem];
 }
 
 // Pure helper functions for array and naming operations with TypeScript types
@@ -248,7 +248,7 @@ const coerceArrayFromAttribute = (value: unknown): EditArrayItem[] => {
   if (typeof value === 'string') {
     const trimmed = value.trim();
     if (trimmed === '') return [];
-    
+
     // For attributes, try to parse as JSON
     try {
       const parsed = JSON.parse(trimmed);
@@ -272,7 +272,7 @@ const buildNamePrefix = (arrayField: string | null, index: number): string | nul
 };
 
 const computeIdPrefix = (arrayField: string | null): string => {
-  if (!arrayField ) return "item";
+  if (!arrayField) return "item";
   // Sanitize and convert to safe ID format
   return arrayField.replace(/[^A-Za-z0-9_-]/g, "_");
 };
@@ -605,17 +605,17 @@ class EditArray extends HTMLElement {
   private onInput = (event: Event): void => {
     const t = event.target as HTMLElement;
     if (!t) return;
-    
+
     // Extract data attributes that identify the field and item being edited
     const name = t.getAttribute("data-name");
     const indexStr = t.getAttribute("data-index");
     if (!name || !indexStr) return;
-    
+
     const index = parseInt(indexStr, 10);
     if (Number.isNaN(index)) return;
-    
+
     // Update the data model when form inputs change
-    const {value} = (t as FormElement);
+    const { value } = (t as FormElement);
     this.updateRecord(index, name, value);
   };
 
@@ -668,14 +668,17 @@ class EditArray extends HTMLElement {
     if (this.id) container.setAttribute('id', this.id);
     container.setAttribute('role', 'region');
     container.setAttribute('aria-label', 'Array editor');
+    container.setAttribute('part', 'container');
 
     const items = document.createElement('div');
     items.className = 'edit-array-items';
     items.setAttribute('role', 'list');
     items.setAttribute('aria-label', 'Editable items');
+    items.setAttribute('part', 'items-container');
 
     const actionBar = document.createElement('div');
     actionBar.className = 'action-bar';
+    actionBar.setAttribute('part', 'action-bar');
 
     container.appendChild(items);
     container.appendChild(actionBar);
@@ -694,7 +697,7 @@ class EditArray extends HTMLElement {
     // Get the index of the item being cancelled
     const indexStr = wrapper.getAttribute('data-index');
     const index = indexStr ? parseInt(indexStr, 10) : null;
-    
+
     if (index !== null && !Number.isNaN(index) && index >= 0 && index < this.data_internal.length) {
       // Remove the specific item from data array
       this.data_internal.splice(index, 1);
@@ -705,10 +708,10 @@ class EditArray extends HTMLElement {
       this.data_internal.pop();
       this.dispatchDataChange();
     }
-    
+
     // Remove the wrapper from DOM
     wrapper.remove();
-    
+
     // Show the add button again
     const addBtn = this.shadowRoot?.querySelector(".action-bar .btn-success") as HTMLElement;
     if (addBtn) addBtn.classList.remove("hidden");
@@ -720,11 +723,11 @@ class EditArray extends HTMLElement {
 
     // Use the addItem method
     const newIndex = this.addItem({});
-    
+
     // Render the new item
     this.renderItem(itemsContainer, {}, newIndex);
     this.toggleEditMode(newIndex);
-    
+
     // Hide the add button
     const addBtn = this.shadowRoot?.querySelector(".action-bar .btn-success") as HTMLElement;
     if (addBtn) addBtn.classList.add("hidden");
@@ -749,7 +752,7 @@ class EditArray extends HTMLElement {
    */
   private updateRestoreButtonLabels(): void {
     if (!this.shadowRoot) return;
-    
+
     // Find all deleted items and update their button text
     const deletedItems = this.shadowRoot.querySelectorAll('.edit-array-item.deleted');
     deletedItems.forEach((wrapper) => {
@@ -799,7 +802,7 @@ class EditArray extends HTMLElement {
   get arrayField(): string | null {
     return this.getAttribute("array-field");
   }
-  
+
   /**
    * Sets the array-field attribute value.
    */
@@ -816,7 +819,7 @@ class EditArray extends HTMLElement {
   get restoreLabel(): string | null {
     return this.getAttribute("restore-label");
   }
-  
+
   /**
    * Sets the restore-label attribute value.
    */
@@ -865,7 +868,7 @@ class EditArray extends HTMLElement {
   set data(value: unknown) {
     const coerced = this.coerceToArray(value);
     this.data_internal = deepClone(coerced);
-    
+
     if (coerced.length === 0 && this.hasAttribute("data")) {
       this.removeAttribute("data");
     } else {
@@ -883,10 +886,10 @@ class EditArray extends HTMLElement {
     }
     this.render();
     this.dispatchDataChange();
-  } 
- /**
-   * Dispatches a change event when the data array is modified.
-   */
+  }
+  /**
+    * Dispatches a change event when the data array is modified.
+    */
   private dispatchDataChange(): void {
     this.dispatchEvent(new CustomEvent('change', {
       detail: { data: deepClone(this.data_internal) },
@@ -904,10 +907,10 @@ class EditArray extends HTMLElement {
     const newIndex = this.data_internal.length - 1;
     this.dispatchDataChange();
     this.dispatchEvent(new CustomEvent('item-added', {
-      detail: { 
-        item: deepClone(newItem), 
-        index: newIndex, 
-        data: deepClone(this.data_internal) 
+      detail: {
+        item: deepClone(newItem),
+        index: newIndex,
+        data: deepClone(this.data_internal)
       },
       bubbles: true,
       composed: true
@@ -927,46 +930,46 @@ class EditArray extends HTMLElement {
     if (typeof fieldName !== "string" || !fieldName) {
       throw new TypeError("fieldName must be a non-empty string");
     }
-    
+
     // Extend array if needed (original behavior)
     while (this.data_internal.length <= index) {
       this.data_internal.push({});
     }
-    
+
     // Initialize the record if it doesn't exist
     if (!this.data_internal[index]) {
       this.data_internal[index] = {};
     }
-    
+
     const oldValue = this.data_internal[index][fieldName];
     this.data_internal[index][fieldName] = value;
-    
+
     this.dispatchDataChange();
     this.dispatchEvent(new CustomEvent('item-updated', {
-      detail: { 
-        index, 
-        fieldName, 
-        value, 
-        oldValue, 
+      detail: {
+        index,
+        fieldName,
+        value,
+        oldValue,
         item: deepClone(this.data_internal[index]),
-        data: deepClone(this.data_internal) 
+        data: deepClone(this.data_internal)
       },
       bubbles: true,
       composed: true
     }) as EditArrayItemUpdatedEvent);
-    
+
     // Update display elements to reflect the change
     if (!this.shadowRoot) return true;
-    
+
     // Cache the wrapper element to reduce DOM queries
     const wrapper = this.shadowRoot.querySelector(`.edit-array-item[data-index="${index}"]`) as HTMLElement;
     if (!wrapper) return true;
-    
+
     const idPrefix = this.arrayField
       ? this.arrayField.replace(/\./g, "_")
       : "item";
     const expectedDataId = `${idPrefix}_${index}__${fieldName}`;
-    
+
     const textValue = value != null ? String(value) : '';
     // Update display elements within the cached wrapper
     wrapper
@@ -974,13 +977,13 @@ class EditArray extends HTMLElement {
       .forEach((el) => {
         (el as HTMLElement).textContent = textValue;
       });
-    
+
     wrapper
       .querySelectorAll(`[data-id="${expectedDataId}"]`)
       .forEach((el) => {
         (el as HTMLElement).textContent = textValue;
       });
-    
+
     return true;
   }
 
@@ -1000,10 +1003,10 @@ class EditArray extends HTMLElement {
     const removedItem = this.data_internal.splice(index, 1)[0];
     this.dispatchDataChange();
     this.dispatchEvent(new CustomEvent('item-deleted', {
-      detail: { 
-        item: deepClone(removedItem), 
-        index, 
-        data: deepClone(this.data_internal) 
+      detail: {
+        item: deepClone(removedItem),
+        index,
+        data: deepClone(this.data_internal)
       },
       bubbles: true,
       composed: true
@@ -1027,9 +1030,9 @@ class EditArray extends HTMLElement {
       `.edit-array-item[data-index="${index}"]`
     ) as HTMLElement;
     if (!wrapper) return false;
-    
+
     let marker = wrapper.querySelector("[data-is-deleted-marker]") as HTMLInputElement;
-    
+
     // Fallback: create marker if it doesn't exist
     if (!marker) {
       console.warn(`EditArray: Missing [data-is-deleted-marker] for index ${index}, creating fallback`);
@@ -1039,13 +1042,13 @@ class EditArray extends HTMLElement {
       marker.setAttribute("value", "false");
       wrapper.appendChild(marker);
     }
-    
+
     const current = (marker.getAttribute("value") || "false").toLowerCase() === "true";
     const newState = !current;
-    
+
     marker.setAttribute("value", String(newState));
     wrapper.classList.toggle("deleted", newState);
-    
+
     if (this.data_internal[index]) {
       this.data_internal[index].isDeleted = newState;
     }
@@ -1061,17 +1064,17 @@ class EditArray extends HTMLElement {
     this.dispatchDataChange();
 
     this.dispatchEvent(new CustomEvent('item-change', {
-      detail: { 
-        index, 
+      detail: {
+        index,
         action: 'toggle-deletion',
         marked: newState,
         item: deepClone(this.data_internal[index]),
-        data: deepClone(this.data_internal) 
+        data: deepClone(this.data_internal)
       },
       bubbles: true,
       composed: true
     }) as EditArrayItemChangeEvent);
-    
+
     return newState;
   }  /**
  
@@ -1116,12 +1119,12 @@ class EditArray extends HTMLElement {
     const invalidInputs = editContainer.querySelectorAll(
       "input:invalid, select:invalid, textarea:invalid"
     ) as NodeListOf<HTMLInputElement>;
-    
+
     let hasErrors = false;
     invalidInputs.forEach((input) => {
       // Use the shared pattern validation function
       const isActuallyValid = testPatternValidation(input);
-      
+
       if (!isActuallyValid) {
         const errorSpan = input.nextElementSibling as HTMLElement;
         if (errorSpan && errorSpan.classList.contains("error-message")) {
@@ -1152,12 +1155,12 @@ class EditArray extends HTMLElement {
     const clone = slot.cloneNode(true) as HTMLElement;
     clone.setAttribute("data-index", String(index));
     const prefix = buildNamePrefix(this.arrayField, index);
-    
+
     // Process all form elements with name attributes for data binding
-    clone.querySelectorAll("[name]").forEach((el) => 
+    clone.querySelectorAll("[name]").forEach((el) =>
       this.applyBindingsToNamedElement(el as HTMLElement, index, prefix, item)
     );
-    
+
     // Process elements with IDs to ensure uniqueness across items
     const idPrefix = this.arrayField
       ? this.arrayField.replace(/\./g, "_")
@@ -1170,7 +1173,9 @@ class EditArray extends HTMLElement {
       element.setAttribute("id", `${idPrefix}_${index}__${id}`);
     });
 
+    // Assign part attributes to cloned form controls for external styling via ::part()
     clone.querySelectorAll("input").forEach((input) => {
+      input.setAttribute("part", "input");
       if (input.willValidate) {
         const errorSpan = document.createElement("span");
         errorSpan.classList.add("error-message");
@@ -1182,7 +1187,7 @@ class EditArray extends HTMLElement {
         input.addEventListener("blur", () => {
           // Use the shared pattern validation function
           const isActuallyValid = testPatternValidation(input);
-          
+
           if (!isActuallyValid) {
             errorSpan.textContent = getHelpfulValidationMessage(input);
             input.classList.add("invalid");
@@ -1206,6 +1211,15 @@ class EditArray extends HTMLElement {
           }
         });
       }
+    });
+    clone.querySelectorAll("select").forEach((select) => {
+      select.setAttribute("part", "select");
+    });
+    clone.querySelectorAll("textarea").forEach((textarea) => {
+      textarea.setAttribute("part", "textarea");
+    });
+    clone.querySelectorAll("label").forEach((label) => {
+      label.setAttribute("part", "label");
     });
 
     return clone;
@@ -1267,17 +1281,23 @@ class EditArray extends HTMLElement {
     wrapper.setAttribute("data-index", String(index));
     wrapper.setAttribute("role", "listitem");
     wrapper.setAttribute("aria-label", `Item ${index + 1}`);
-    if (displayClone) wrapper.appendChild(displayClone);
+    wrapper.setAttribute("part", "item");
+    if (displayClone) {
+      displayClone.setAttribute("part", "display-container");
+      wrapper.appendChild(displayClone);
+    }
     container.appendChild(wrapper);
 
     const editClone = this.editSlotTemplate(index, item);
     const editContainer = document.createElement("div");
     editContainer.className = "edit-container hidden";
+    editContainer.setAttribute("part", "edit-container");
     if (editClone) editContainer.appendChild(editClone);
     wrapper.appendChild(editContainer);
     const editBtn = this.createEditButton(index);
 
     const buttonBar = document.createElement("div");
+    buttonBar.setAttribute("part", "button-bar");
 
     buttonBar.appendChild(editBtn);
     const deleteBtn = this.createDeleteButton(index, item);
@@ -1287,8 +1307,8 @@ class EditArray extends HTMLElement {
       item == null ||
       (typeof item === "object" && Object.keys(item).length === 0)
     ) {
-        const cancelBtn = this.createCancelButton(wrapper);
-        buttonBar.appendChild(cancelBtn);
+      const cancelBtn = this.createCancelButton(wrapper);
+      buttonBar.appendChild(cancelBtn);
     }
 
     wrapper.appendChild(buttonBar);
@@ -1339,7 +1359,7 @@ class EditArray extends HTMLElement {
   private getButtonClasses(action: string): string[] {
     const baseClasses = ['btn'];
     const smallSize = 'btn-sm';
-    
+
     switch (action) {
       case 'edit':
         return [...baseClasses, smallSize, 'btn-primary', 'edit-array-item-btn'];
@@ -1367,7 +1387,7 @@ class EditArray extends HTMLElement {
    */
   private getButtonAriaLabel(action: string, index?: number): string {
     let itemText = '';
-    
+
     if (typeof index === 'number') {
       // Handle negative indices by treating them as 0
       const itemNumber = index < 0 ? 0 : index + 1;
@@ -1378,7 +1398,7 @@ class EditArray extends HTMLElement {
         itemText = ' item';
       }
     }
-    
+
     switch (action) {
       case 'edit': {
         const label = this.getAttribute('edit-label') || 'Edit';
@@ -1440,11 +1460,11 @@ class EditArray extends HTMLElement {
 
     // Get and add appropriate CSS classes
     const newClasses = this.getButtonClasses(action);
-    
+
     // Merge classes without duplicates
     const existingClasses = Array.from(enhanced.classList);
     const allClasses = [...existingClasses];
-    
+
     // Add new classes that don't already exist
     newClasses.forEach(newClass => {
       if (!allClasses.includes(newClass)) {
@@ -1461,7 +1481,7 @@ class EditArray extends HTMLElement {
   private createCancelButton(_wrapper: HTMLElement): HTMLButtonElement {
     const cancelBtn = document.createElement("button");
     cancelBtn.textContent =
-        this.getAttribute("cancel-label") || "Cancel";
+      this.getAttribute("cancel-label") || "Cancel";
     cancelBtn.className = "btn btn-sm btn-danger";
     cancelBtn.setAttribute('data-action', 'cancel');
     cancelBtn.setAttribute('aria-label', 'Cancel adding item');
@@ -1471,7 +1491,7 @@ class EditArray extends HTMLElement {
   private createDeleteButton(index: number, item?: EditArrayItem | null): HTMLButtonElement {
     // Check for slotted delete button template first
     const slottedTemplate = this.getSlottedButtonTemplate('delete');
-    
+
     if (slottedTemplate) {
       // Determine the appropriate action based on item deletion state
       // This ensures the correct aria-label and styling are applied
@@ -1479,7 +1499,7 @@ class EditArray extends HTMLElement {
       // Use slotted template and enhance it with proper attributes and classes
       return this.enhanceButtonWithAttributes(slottedTemplate, action, index);
     }
-    
+
     // Fallback to programmatic button creation when no slot template exists
     const deleteBtn = document.createElement("button");
     const buttonText = this.getDeleteButtonText(item);
@@ -1494,12 +1514,12 @@ class EditArray extends HTMLElement {
   private createEditButton(index: number): HTMLButtonElement {
     // Check for slotted edit button template first
     const slottedTemplate = this.getSlottedButtonTemplate('edit');
-    
+
     if (slottedTemplate) {
       // Use slotted template and enhance it with proper attributes and classes
       return this.enhanceButtonWithAttributes(slottedTemplate, 'edit', index);
     }
-    
+
     // Fallback to programmatic button creation when no slot template exists
     const editBtn = document.createElement("button");
     editBtn.textContent = this.getAttribute("edit-label") || "Edit";
@@ -1537,20 +1557,21 @@ class EditArray extends HTMLElement {
     addBtn.className = "btn btn-sm btn-success";
     addBtn.setAttribute('data-action', 'add');
     addBtn.setAttribute('aria-label', 'Add new item to the list');
+    addBtn.setAttribute('part', 'add-button');
 
     if (actionBar) {
       actionBar.innerHTML = "";
       actionBar.appendChild(addBtn);
     }
-  } 
- /**
-   * Updates a record field (legacy method that delegates to updateItem).
-   * @deprecated Use updateItem() instead
-   */
+  }
+  /**
+    * Updates a record field (legacy method that delegates to updateItem).
+    * @deprecated Use updateItem() instead
+    */
   public updateRecord(index: number, fieldName: string, value: unknown): void {
     // Issue deprecation warning
     console.warn('EditArray: updateRecord() is deprecated. Use updateItem() instead.');
-    
+
     // Deprecated method - maintains backward compatibility with throwing behavior
     if (typeof index !== 'number') {
       throw new Error('index must be a number');
@@ -1558,7 +1579,7 @@ class EditArray extends HTMLElement {
     if (!fieldName || typeof fieldName !== 'string') {
       throw new Error('fieldName must be a non-empty string');
     }
-    
+
     // Delegate to the new updateItem method for the actual work
     this.updateItem(index, fieldName, value);
   }
@@ -1633,11 +1654,11 @@ class EditArray extends HTMLElement {
     if (attr && (!Array.isArray(this.data_internal) || this.data_internal.length === 0)) {
       this.data_internal = deepClone(coerceArrayFromAttribute(attr));
     }
-    
+
     // Register delegated event listeners
     this.shadowRoot?.addEventListener("input", this.onInput);
     this.shadowRoot?.addEventListener("click", this.onDelegatedClick);
-    
+
     this.render();
   }
 

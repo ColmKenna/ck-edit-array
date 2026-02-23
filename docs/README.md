@@ -45,6 +45,7 @@ import 'edit-array-component';
 - **✅ HTML5 Validation** - Built-in form validation with helpful error messages
 - **♿ Accessibility First** - WCAG compliant with proper ARIA attributes and keyboard navigation
 - **🎨 CSS Custom Properties** - Fully themeable with CSS variables
+- **🧩 CSS `::part()` Support** - Style Shadow DOM inputs, labels, and containers externally ([interactive demo](../examples/demo-styling.html))
 - **📱 Responsive Design** - Works seamlessly on mobile and desktop
 - **⚡ High Performance** - Efficient rendering and memory management for large datasets
 - **🔧 Event-Driven** - Comprehensive event system for integration with any framework
@@ -443,6 +444,54 @@ Create your own theme by defining the CSS custom properties:
   --spacing-lg: 1.25rem;
 }
 ```
+
+### Styling with `::part()`
+
+The component exposes key Shadow DOM elements via `part` attributes, enabling direct external styling with `::part()` selectors. This is especially useful for styling the form inputs inside the edit template.
+
+**Available Parts:** `container`, `items-container`, `action-bar`, `item`, `display-container`, `edit-container`, `button-bar`, `add-button`, `input`, `select`, `textarea`, `label`
+
+```css
+/* Style all inputs inside the edit template */
+ck-edit-array::part(input) {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-family: inherit;
+}
+
+ck-edit-array::part(input):focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+  border-color: #3b82f6;
+}
+
+/* Style select dropdowns */
+ck-edit-array::part(select) {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+}
+
+/* Style the edit container background */
+ck-edit-array::part(edit-container) {
+  background: #f9fafb;
+  padding: 1rem;
+  border-radius: 8px;
+}
+
+/* Style labels */
+ck-edit-array::part(label) {
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  display: block;
+}
+```
+
+> 💡 See the [interactive styling demo](../examples/demo-styling.html) for 4 live style presets (default, rounded, dark, material) and copy-ready code examples.
 
 ## ♿ Accessibility Features
 

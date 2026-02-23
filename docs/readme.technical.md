@@ -402,6 +402,17 @@ const buildNamePrefix = (arrayField, index) => {
 - CSP-compatible: no eval, no inline scripts/styles.  
 - SSR-friendly with progressive enhancement.
 
+### CSS Parts for External Styling
+
+The component exposes Shadow DOM elements via the `part` attribute, allowing consumers to style internal elements using `::part()` selectors. Parts are assigned at three levels:
+
+- **Constructor**: `container`, `items-container`, `action-bar` (structural, set once)
+- **`renderItem()`**: `item`, `edit-container`, `display-container`, `button-bar` (per item)
+- **`editSlotTemplate()`**: `input`, `select`, `textarea`, `label` (cloned form controls)
+- **`render()`**: `add-button` (action bar button)
+
+> See the [interactive styling demo](../examples/demo-styling.html) for live examples with multiple style presets.
+
 ---
 
 This update removes corrupted characters and the malformed ASCII diagram, normalizes encoding and formatting, and preserves all technical content and code examples.

@@ -1,6 +1,6 @@
 ﻿# EditArray Web Component Specification
 
-**Version**: 1.0.0  
+**Version**: 1.1.0  
 **Status**: Release Candidate  
 **Last Updated**: 2024  
 
@@ -276,10 +276,49 @@ This specification defines:
 - **Validation**: Invalid themes fall back to "light"
 
 #### `item-direction`
-- **Reflects**: Property value (`"row"` or `"column"`)
-- **Default**: `"column"`
-- **Observer**: Updates `.edit-array-item` flex direction and keeps `justify-content: space-between`
-- **Usage**: Set to `"row"` to align item content and actions horizontally
+  - **Reflects**: Property value (`"row"` or `"column"`)
+  - **Default**: `"column"`
+  - **Observer**: Updates `.edit-array-item` flex direction and keeps `justify-content: space-between`
+  - **Usage**: Set to `"row"` to align item content and actions horizontally
+
+## 🎨 CSS Parts
+
+The component exposes Shadow DOM elements via `part` attributes, enabling external styling with `::part()` selectors.
+
+| Part Name | Element | Description |
+|-----------|---------|-------------|
+| `container` | `.edit-array-container` | Root container element |
+| `items-container` | `.edit-array-items` | Container for all item rows |
+| `action-bar` | `.action-bar` | Bottom bar containing the add button |
+| `item` | `.edit-array-item` | Individual item wrapper |
+| `display-container` | Display slot clone | Read-only display content wrapper |
+| `edit-container` | `.edit-container` | Edit form wrapper |
+| `button-bar` | Button bar `div` | Container for edit/delete/cancel buttons |
+| `add-button` | Add button | The "Add New Item" button |
+| `input` | `<input>` | Cloned input elements inside edit template |
+| `select` | `<select>` | Cloned select elements inside edit template |
+| `textarea` | `<textarea>` | Cloned textarea elements inside edit template |
+| `label` | `<label>` | Cloned label elements inside edit template |
+
+### Usage Example
+
+```css
+ck-edit-array::part(input) {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+ck-edit-array::part(edit-container) {
+  background: #f9fafb;
+  padding: 1rem;
+  border-radius: 8px;
+}
+```
+
+> See the [interactive styling demo](../examples/demo-styling.html) for live examples of these parts in action.
 
 ## ðŸŽ¨ Slot Specification
 
@@ -565,7 +604,7 @@ edit-array/
 
 **Versions**:
 - Latest: `https://cdn.example.com/edit-array@latest/ck-edit-array.js`
-- Specific: `https://cdn.example.com/edit-array@1.0.0/ck-edit-array.js`
+- Specific: `https://cdn.example.com/edit-array@1.1.0/ck-edit-array.js`
 - Minified: `https://cdn.example.com/edit-array@latest/edit-array.min.js`
 
 ### NPM Package
@@ -602,6 +641,6 @@ edit-array/
 
 ---
 
-**Document Status**: This specification is considered stable for version 1.0.0. Changes require review and approval through the standard change management process.
+**Document Status**: This specification is considered stable for version 1.1.0. Changes require review and approval through the standard change management process.
 
 **Next Review**: Scheduled for next major version planning cycle.
