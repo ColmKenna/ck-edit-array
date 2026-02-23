@@ -56,15 +56,20 @@ import 'edit-array-component';
 
 ### Attributes
 
-| Attribute | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `array-field` | `string` | - | Field name used for form submission (generates proper name attributes) |
-| `data` | `string` | `"[]"` | JSON string representation of the array data |
-| `edit-label` | `string` | `"Edit"` | Label text for edit buttons |
-| `save-label` | `string` | `"Save"` | Label text for save buttons |
-| `delete-label` | `string` | `"Delete"` | Label text for delete buttons |
-| `cancel-label` | `string` | `"Cancel"` | Label text for cancel buttons |
-| `item-direction` | `string` | `"column"` | Layout direction for each item; set to `"row"` to place content and actions side-by-side |
+Note: `array-field`, `data`, `restore-label`, and `primitive-array` are observed for live updates. Other label-related attributes are read when items/buttons render or toggle.
+
+| Attribute | Type | Default | Observed | Description |
+|-----------|------|---------|----------|-------------|
+| `array-field` | `string` | - | Yes | Field name used for form submission (generates proper `name` attributes like `users[0].name`) |
+| `data` | `string` | `"[]"` | Yes | JSON string representation of the array data. Non-JSON strings are ignored when provided via attribute. |
+| `item-direction` | `"row" \| "column"` | `"column"` | No | Layout direction for each `.edit-array-item`. Set to `row` to align content/actions horizontally. |
+| `action-bar-justify` | `'start' | 'center' | 'end' | 'space-between' | 'space-around' | 'space-evenly'` | `'start'` | No | Controls how buttons in the action bar are justified. Maps to CSS `justify-content`. Default is `'start'` (flex-start). |
+| `edit-label` | `string` | `"Edit"` | No | Label text for edit buttons |
+| `save-label` | `string` | `"Save"` | No | Label text shown while editing |
+| `delete-label` | `string` | `"Delete"` | No | Label text for delete buttons |
+| `restore-label` | `string` | `"Restore"` | Yes | Label text for restore state; updates all deleted items when changed |
+| `cancel-label` | `string` | `"Cancel"` | No | Label text for cancel buttons (for brand new empty items) |
+| `primitive-array` | `boolean` | `false` | Yes | When present, treats each item as a primitive value. Inputs named `value` will generate form names like `arrayField[0]` (no `.value` suffix). Backwards-compatible default keeps `arrayField[0].value`. |
 
 ### Properties
 
@@ -299,6 +304,68 @@ Define the form interface for editing items:
 - Generated form names follow proper array notation for server submission
 - Support for all form control types: input, select, textarea, etc.
 
+#### Primitive arrays (strings, numbers, URLs)
+
+For arrays of primitive values, add the `primitive-array` attribute and use a single field named `value` in your templates. The component will emit names like `client.uris[0]` instead of `client.uris[0].value`:
+
+```html
+<ck-edit-array array-field="client.uris" primitive-array>
+  <div slot="display">
+    <span data-display-for="value"></span>
+  </div>
+  <div slot="edit">
+    <input name="value" type="url" placeholder="https://example.com" required />
+  </div>
+</ck-edit-array>
+```
+
+Without `primitive-array`, the generated field names will follow the object-style convention: `client.uris[0].value`.
+
+### Buttons Slot (`slot="buttons"`)
+
+Optionally provide custom button templates for per-item actions. Place button elements with `data-action` attributes inside an element with `slot="buttons"` in the light DOM. The component will clone and enhance these templates per item (preserving your content and classes) and add required data attributes and ARIA labels:
+
+Supported actions in templates:
+- `data-action="edit"` – template used for the Edit/Save toggle button
+- `data-action="delete"` – template used for Delete/Restore toggle button
+
+Notes:
+- You do not need to provide templates for `add` or `cancel` — those are created programmatically.
+- For deleted items, the `delete` template is automatically enhanced with a restore label and ARIA attributes.
+
+### Shadow Parts for Styling
+
+The component exposes the following shadow parts to enable precise styling from the outside with `::part(...)`:
+
+- `action-bar` – container that holds the global action buttons (e.g., Add)
+- `add-button` – the “Add New Item” button
+- `edit-button` – the per-item Edit/Save toggle button
+- `delete-button` – the per-item Delete/Restore toggle button
+- `cancel-button` – the per-item Cancel button (shown for brand-new empty items)
+
+Example usage:
+
+```css
+ck-edit-array::part(action-bar) {
+  display: flex;
+  justify-content: flex-end;
+}
+### Action Bar Layout
+
+You can control the alignment of the global action bar (which hosts the Add button) via the `action-bar-justify` attribute:
+
+```html
+<ck-edit-array action-bar-justify="center"></ck-edit-array>
+```
+
+Accepted values: `start`, `center`, `end`, `space-between`, `space-around`, `space-evenly`. The attribute maps to `justify-content` on the internal `.action-bar` flex container. When the attribute is omitted or invalid, the layout defaults to `start` (flex-start).
+
+
+ck-edit-array::part(edit-button) {
+  text-transform: uppercase;
+}
+```
+
 ## ✅ Validation System
 
 ### Built-in Validation
@@ -339,95 +406,70 @@ editArray.addEventListener('item-updated', (event) => {
 
 ### CSS Custom Properties
 
-The component is fully themeable using CSS custom properties:
+The component exposes the following CSS custom properties used in its shadow styles. Set them on the host element (`ck-edit-array`) or globally to theme the component:
 
 ```css
-edit-array {
-  /* Colors */
-  --button-primary-bg: #3b82f6;
-  --button-primary-color: #ffffff;
-  --button-primary-hover-bg: #2563eb;
-  --button-secondary-bg: #f3f4f6;
-  --button-secondary-color: #374151;
-  --button-success-bg: #10b981;
-  --button-danger-bg: #ef4444;
-  --error-color: #ef4444;
+ck-edit-array {
+  /* Container */
   --border-color: #e5e7eb;
-  
-  /* Layout */
-  --border-radius: 8px;
-  --spacing-sm: 0.5rem;
-  --spacing-md: 1rem;
-  --spacing-lg: 1.5rem;
-  
-  /* Typography */
-  --button-font-size: 0.875rem;
-  --button-font-weight: 500;
+  --border-radius: 12px;
+  --spacing-sm: 0.25rem;
+  --spacing-md: 0.5rem;
+  --spacing-lg: 1rem;
   --font-size-sm: 0.875rem;
-  
-  /* Animation */
   --transition-duration: 0.3s;
   --transition-timing: ease;
-  
-  /* Button Sizing */
+
+  /* Error states */
+  --error-border-color: #f87171;
+  --error-bg-color: #fee2e2;
+  --error-color: #ef4444;
+
+  /* Buttons: shared */
+  --button-font-size: 0.875rem;
+  --button-font-weight: 500;
   --button-padding: 0.375rem 0.75rem;
   --button-margin: 0 0.25rem 0.25rem 0;
   --button-border-width: 1px;
   --button-border-radius: 6px;
-}
-```
 
-### Built-in Themes
-
-#### Light Theme (Default)
-```css
-:root {
-  --button-primary-bg: #3b82f6;
+  /* Secondary (base) button */
   --button-secondary-bg: #f3f4f6;
-  --background-color: #ffffff;
-  --text-color: #1f2937;
+  --button-secondary-color: #374151;
+  --button-secondary-border: #d1d5db;
+  --button-secondary-hover-bg: #e5e7eb;
+  --button-secondary-hover-border: #9ca3af;
+
+  /* Primary (edit/add) */
+  --button-primary-bg: #3b82f6;
+  --button-primary-color: #ffffff;
+  --button-primary-border: #3b82f6;
+  --button-primary-hover-bg: #2563eb;
+  --button-primary-hover-border: #2563eb;
+
+  /* Success (save) */
+  --button-success-bg: #10b981;
+  --button-success-color: #ffffff;
+  --button-success-border: #10b981;
+  --button-success-hover-bg: #059669;
+  --button-success-hover-border: #059669;
+
+  /* Danger (delete/cancel) */
+  --button-danger-bg: #ef4444;
+  --button-danger-color: #ffffff;
+  --button-danger-border: #ef4444;
+  --button-danger-hover-bg: #dc2626;
+  --button-danger-hover-border: #dc2626;
 }
 ```
 
-#### Dark Theme
-```css
-[data-theme="dark"] {
-  --button-primary-bg: #60a5fa;
-  --button-secondary-bg: #374151;
-  --background-color: #111827;
-  --text-color: #f9fafb;
-}
-```
+You can implement light/dark or brand themes by switching these variables at the document or container scope. The component itself does not implement a `theme` attribute — it relies on standard CSS custom properties.
 
-#### Forest Green Theme
-```css
-[data-theme="forest-green"] {
-  --button-primary-bg: #059669;
-  --button-secondary-bg: #d1fae5;
-  --background-color: #ecfdf5;
-  --text-color: #064e3b;
-}
-```
+In addition to CSS variables, you can target specific controls via the shadow parts listed above.
 
-#### Warm Sunset Theme
-```css
-[data-theme="warm-sunset"] {
-  --button-primary-bg: #ea580c;
-  --button-secondary-bg: #fed7aa;
-  --background-color: #fff7ed;
-  --text-color: #9a3412;
-}
-```
+### Layout Direction
 
-### Theme Switching
-
-```javascript
-// Switch to dark theme
-document.documentElement.setAttribute('data-theme', 'dark');
-
-// Switch back to light theme
-document.documentElement.removeAttribute('data-theme');
-```
+Control per-item layout using the `item-direction` attribute or property. When set to `row`, the component applies `flex-direction: row` to `.edit-array-item`.
 
 ### Custom Theme Creation
 
@@ -522,10 +564,10 @@ The component automatically sets appropriate ARIA attributes:
 
 ### Keyboard Navigation
 
-- **Tab**: Navigate through interactive elements
-- **Enter/Space**: Activate buttons
-- **Escape**: Cancel edit mode (when implemented)
-- **Arrow Keys**: Navigate within form controls
+- Tab: Navigate through interactive elements
+- Enter/Space: Activate buttons
+- Escape: Cancel edit mode (if you provide such behavior in your templates)
+- Arrow Keys: Navigate within form controls (native behavior)
 
 ### Screen Reader Announcements
 
@@ -947,3 +989,40 @@ MIT License - see [LICENSE](../LICENSE) file for details.
 ---
 
 **Made with ❤️ by the EditArray team**
+
+---
+
+## Quality Gap Audit
+
+Summary: The component is robust with strong event coverage, flexible slots, and accessible defaults. Gaps are minor and mostly about explicit behaviors not yet implemented in code.
+
+Compliance matrix:
+
+- Accessibility: Partial
+  - Gaps: No explicit keyboard shortcuts for toggling edit mode; focus is not programmatically moved to first input on enter edit mode in current source.
+  - Impact: Medium (UX), mitigated by native tab flows and ARIA labeling.
+  - Remediation: Move focus to the first editable control when entering edit mode; add optional Escape to cancel behavior.
+
+- Internationalization: Missing
+  - Gaps: Labels rely on attributes but no i18n mechanism or dir/language-specific behaviors.
+  - Impact: Low/Medium depending on usage.
+  - Remediation: Document attribute-based localization; consider `lang`/`dir` propagation.
+
+- Security: Complete
+  - Evidence: Uses `textContent`, sanitizes generated IDs/names, no `innerHTML`, CSP-friendly.
+
+- Performance: Partial
+  - Gaps: No virtualization for very large lists; fine for moderate sizes.
+  - Impact: Low/Medium.
+  - Remediation: Document guidance; consider virtualization in future.
+
+- Theming: Complete
+  - Evidence: Comprehensive CSS custom properties; exposed `::part()` hooks.
+
+- Browser Support: Complete
+  - Evidence: Constructable Stylesheets with fallback to `<style>`.
+
+- Testing: Complete
+  - Evidence: Jest suites present and passing; accessibility, security, visual, performance tests exist.
+
+

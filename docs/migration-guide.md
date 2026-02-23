@@ -45,15 +45,15 @@ function removeUser(index) {
 ```html
 <form id="userForm">
   <ck-edit-array array-field="users" data='[]'>
-    <template slot="display">
+    <div slot="display">
       <strong data-display-for="name"></strong>
       <em data-display-for="email"></em>
-    </template>
+    </div>
     
-    <template slot="edit">
+    <div slot="edit">
       <input type="text" name="name" placeholder="Name" required>
       <input type="email" name="email" placeholder="Email" required>
-    </template>
+    </div>
   </ck-edit-array>
 </form>
 ```
@@ -154,15 +154,15 @@ function UserList() {
       array-field="users"
       data={JSON.stringify(users)}
     >
-      <template slot="display">
+      <div slot="display">
         <strong data-display-for="name"></strong>
         <em data-display-for="email"></em>
-      </template>
+      </div>
       
-      <template slot="edit">
+      <div slot="edit">
         <input type="text" name="name" placeholder="Name" required />
         <input type="email" name="email" placeholder="Email" required />
-      </template>
+      </div>
   </ck-edit-array>
   );
 }
@@ -228,15 +228,15 @@ export default {
     array-field="users"
     @change="handleChange"
   >
-    <template slot="display">
+    <div slot="display">
       <strong data-display-for="name"></strong>
       <em data-display-for="email"></em>
-    </template>
+    </div>
     
-    <template slot="edit">
+    <div slot="edit">
       <input type="text" name="name" placeholder="Name" required>
       <input type="email" name="email" placeholder="Email" required>
-    </template>
+    </div>
   </ck-edit-array>
 </template>
 
@@ -331,15 +331,15 @@ interface User {
       array-field="users"
       (change)="handleChange($event)"
     >
-      <template slot="display">
+      <div slot="display">
         <strong data-display-for="name"></strong>
         <em data-display-for="email"></em>
-      </template>
+      </div>
       
-      <template slot="edit">
+      <div slot="edit">
         <input type="text" name="name" placeholder="Name" required>
         <input type="email" name="email" placeholder="Email" required>
-      </template>
+      </div>
   </ck-edit-array>
   `,
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
@@ -429,15 +429,15 @@ export class UserListComponent {
   array-field="users"
   on:change={handleChange}
 >
-  <template slot="display">
+  <div slot="display">
     <strong data-display-for="name"></strong>
     <em data-display-for="email"></em>
-  </template>
+  </div>
   
-  <template slot="edit">
+  <div slot="edit">
     <input type="text" name="name" placeholder="Name" required>
     <input type="email" name="email" placeholder="Email" required>
-  </template>
+  </div>
 </ck-edit-array>
 ```
 
@@ -612,16 +612,16 @@ edit-array .form-control {
 ```html
 <!-- Tailwind classes in slot templates -->
 <ck-edit-array array-field="users">
-  <template slot="display">
+  <div slot="display">
     <div class="bg-white p-4 rounded-lg shadow border">
       <h3 class="text-lg font-semibold text-gray-900" data-display-for="name"></h3>
       <p class="text-gray-600" data-display-for="email"></p>
       <span class="inline-block px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded" 
             data-display-for="role"></span>
     </div>
-  </template>
+  </div>
   
-  <template slot="edit">
+  <div slot="edit">
     <div class="bg-white p-4 rounded-lg shadow border space-y-4">
       <input type="text" name="name" 
              class="w-full px-3 py-2 border border-gray-300 rounded-md"
@@ -635,7 +635,7 @@ edit-array .form-control {
         <option value="admin">Admin</option>
       </select>
     </div>
-  </template>
+  </div>
 </ck-edit-array>
 ```
 
@@ -794,14 +794,15 @@ function generateForm(schema) {
 
 **After (Template Switching)**:
 ```html
-<!-- Basic Template -->
-<template id="basic-user-template" slot="edit">
+<!-- Basic Template as element content -->
+<div id="basic-user-template" slot="edit">
   <input type="text" name="name" required placeholder="Full Name">
   <input type="email" name="email" required placeholder="Email Address">
-</template>
+  
+</div>
 
-<!-- Advanced Template -->
-<template id="advanced-user-template" slot="edit">
+<!-- Advanced Template as element content -->
+<div id="advanced-user-template" slot="edit">
   <input type="text" name="name" required placeholder="Full Name">
   <input type="email" name="email" required placeholder="Email Address">
   <input type="tel" name="phone" pattern="\([0-9]{3}\) [0-9]{3}-[0-9]{4}" placeholder="(555) 123-4567">
@@ -810,7 +811,8 @@ function generateForm(schema) {
     <option value="admin">Admin</option>
     <option value="moderator">Moderator</option>
   </select>
-</template>
+  
+</div>
 
 <ck-edit-array id="userArray" array-field="users">
   <!-- Templates inserted dynamically -->
@@ -867,15 +869,15 @@ function createUserElement(user, index) {
 ```html
 <!-- EditArray handles all optimizations automatically -->
 <ck-edit-array array-field="users" data='[]'>
-  <template slot="display">
+  <div slot="display">
     <strong data-display-for="name"></strong>
     <em data-display-for="email"></em>
-  </template>
+  </div>
   
-  <template slot="edit">
+  <div slot="edit">
     <input type="text" name="name" required>
     <input type="email" name="email" required>
-  </template>
+  </div>
 </ck-edit-array>
 ```
 
@@ -923,7 +925,7 @@ function createUserElement(user, index) {
 
 **Problem**:
 ```html
-<!-- WRONG: Template inside shadow DOM -->
+<!-- WRONG: Slotted content missing or placed incorrectly -->
 <ck-edit-array>
   <div slot="display">
     <span data-display-for="name"></span>
@@ -933,11 +935,11 @@ function createUserElement(user, index) {
 
 **Solution**:
 ```html
-<!-- CORRECT: Template element with slot attribute -->
+<!-- CORRECT: Element with slot attribute -->
 <ck-edit-array>
-  <template slot="display">
+  <div slot="display">
     <span data-display-for="name"></span>
-  </template>
+  </div>
 </ck-edit-array>
 ```
 
@@ -963,9 +965,9 @@ editArray.data = [...editArray.data, { name: 'New User' }];
 ```html
 <!-- WRONG: Missing array-field attribute -->
 <ck-edit-array data='[{"name": "John"}]'>
-  <template slot="edit">
+  <div slot="edit">
     <input type="text" name="name">
-  </template>
+  </div>
 </ck-edit-array>
 ```
 
@@ -973,9 +975,9 @@ editArray.data = [...editArray.data, { name: 'New User' }];
 ```html
 <!-- CORRECT: With array-field for proper form naming -->
 <ck-edit-array array-field="users" data='[{"name": "John"}]'>
-  <template slot="edit">
+  <div slot="edit">
     <input type="text" name="name">
-  </template>
+  </div>
 </ck-edit-array>
 ```
 

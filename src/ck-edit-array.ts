@@ -54,6 +54,21 @@ const EDIT_ARRAY_CSS: string = `
   .edit-array-container { 
     display: block; 
   }
+
+  /* Action bar (container for global actions like Add) */
+  .action-bar {
+    display: flex;
+    gap: var(--spacing-md, 0.5rem);
+    justify-content: flex-start; /* default when no attribute set */
+  }
+  
+  /* Map attribute values to flex justify options */
+  :host([action-bar-justify="start"]) .action-bar { justify-content: flex-start; }
+  :host([action-bar-justify="center"]) .action-bar { justify-content: center; }
+  :host([action-bar-justify="end"]) .action-bar { justify-content: flex-end; }
+  :host([action-bar-justify="space-between"]) .action-bar { justify-content: space-between; }
+  :host([action-bar-justify="space-around"]) .action-bar { justify-content: space-around; }
+  :host([action-bar-justify="space-evenly"]) .action-bar { justify-content: space-evenly; }
   
   .edit-array-item { 
     border: 1px solid var(--border-color, #e5e7eb); 
@@ -72,7 +87,8 @@ const EDIT_ARRAY_CSS: string = `
   }
 
   .edit-container, .display-container {
-    margin-bottom: var(--spacing-md, 0.5rem)
+    margin-bottom: var(--spacing-md, 0.5rem);
+    flex-grow: 1;
   }
 
   .edit-array-item.deleted { 
@@ -678,6 +694,7 @@ class EditArray extends HTMLElement {
 
     const actionBar = document.createElement('div');
     actionBar.className = 'action-bar';
+    // expose part for external styling via ::part()
     actionBar.setAttribute('part', 'action-bar');
 
     container.appendChild(items);
@@ -780,7 +797,7 @@ class EditArray extends HTMLElement {
    * Specifies which attributes should be observed for changes.
    */
   static get observedAttributes(): string[] {
-    return ["array-field", "data", "restore-label"];
+    return ["array-field", "data", "restore-label", "action-bar-justify", "primitive-array"];
   }  /*
 *
    * Validates the array-field attribute value for safety.
@@ -846,6 +863,42 @@ class EditArray extends HTMLElement {
     } else {
       this.removeAttribute("item-direction");
     }
+  }
+
+  /**
+   * Gets the action-bar-justify attribute value, defaulting to "start" when not set or invalid.
+   */
+  get actionBarJustify(): "start" | "center" | "end" | "space-between" | "space-around" | "space-evenly" {
+    const attr = this.getAttribute("action-bar-justify");
+    const allowed = new Set(["start", "center", "end", "space-between", "space-around", "space-evenly"]);
+    return (attr && allowed.has(attr as string) ? (attr as any) : "start") as
+      | "start"
+      | "center"
+      | "end"
+      | "space-between"
+      | "space-around"
+      | "space-evenly";
+  }
+
+  /**
+   * Sets the action-bar-justify attribute value. Invalid values remove the attribute.
+   */
+  set actionBarJustify(value: "start" | "center" | "end" | "space-between" | "space-around" | "space-evenly" | null) {
+    const allowed = new Set(["start", "center", "end", "space-between", "space-around", "space-evenly"]);
+    if (value && allowed.has(value)) {
+      this.setAttribute("action-bar-justify", value);
+    } else {
+      this.removeAttribute("action-bar-justify");
+    }
+  }
+
+  /**
+   * Whether the component should treat item values as primitives for form naming.
+   * When enabled via the boolean attribute `primitive-array`, inputs named `value`
+   * will be emitted as `arrayField[index]` (without `.value`).
+   */
+  private get primitiveArray(): boolean {
+    return this.hasAttribute('primitive-array');
   }
 
   /**
@@ -1243,8 +1296,13 @@ class EditArray extends HTMLElement {
       const element = el as HTMLElement;
       const name = element.getAttribute("name");
       if (!name) return;
-      if (prefix && !name.includes(this.arrayField || ''))
-        element.setAttribute("name", `${prefix}.${name}`);
+      if (prefix && !name.includes(this.arrayField || '')) {
+        if (this.primitiveArray && name === 'value') {
+          element.setAttribute("name", `${prefix}`);
+        } else {
+          element.setAttribute("name", `${prefix}.${name}`);
+        }
+      }
     });
     const idPrefix = this.arrayField
       ? this.arrayField.replace(/\./g, "_")
@@ -1458,6 +1516,14 @@ class EditArray extends HTMLElement {
     const ariaLabel = this.getButtonAriaLabel(action, index);
     enhanced.setAttribute('aria-label', ariaLabel);
 
+    // Expose a part name so consumers can style the button via ::part()
+    // Use a consistent naming convention: `{action}-button` (e.g. edit-button)
+    try {
+      enhanced.setAttribute('part', `${action}-button`);
+    } catch (e) {
+      // Some environments may restrict attributes on certain elements; ignore silently
+    }
+
     // Get and add appropriate CSS classes
     const newClasses = this.getButtonClasses(action);
 
@@ -1485,6 +1551,8 @@ class EditArray extends HTMLElement {
     cancelBtn.className = "btn btn-sm btn-danger";
     cancelBtn.setAttribute('data-action', 'cancel');
     cancelBtn.setAttribute('aria-label', 'Cancel adding item');
+    // part for styling from outside
+    cancelBtn.setAttribute('part', 'cancel-button');
     return cancelBtn;
   }
 
@@ -1508,6 +1576,8 @@ class EditArray extends HTMLElement {
     deleteBtn.setAttribute('data-action', 'delete');
     deleteBtn.setAttribute('data-index', String(index));
     deleteBtn.setAttribute('aria-label', `${buttonText} item ${index + 1}`);
+    // expose part for styling
+    deleteBtn.setAttribute('part', 'delete-button');
     return deleteBtn;
   }
 
@@ -1527,6 +1597,8 @@ class EditArray extends HTMLElement {
     editBtn.setAttribute('data-action', 'edit');
     editBtn.setAttribute('data-index', String(index));
     editBtn.setAttribute('aria-label', `Edit item ${index + 1}`);
+    // expose part for styling consumers
+    editBtn.setAttribute('part', 'edit-button');
     return editBtn;
   }
 
@@ -1542,7 +1614,7 @@ class EditArray extends HTMLElement {
     if (!itemsContainer) return;
     itemsContainer.innerHTML = "";
 
-    if (!Array.isArray(this.data_internal) || this.data_internal.length === 0) return;
+    if (!Array.isArray(this.data_internal)) return;
 
     this.data_internal.forEach((item, index) =>
       this.renderItem(itemsContainer, item, index)
@@ -1557,6 +1629,7 @@ class EditArray extends HTMLElement {
     addBtn.className = "btn btn-sm btn-success";
     addBtn.setAttribute('data-action', 'add');
     addBtn.setAttribute('aria-label', 'Add new item to the list');
+    // expose a part for consumers to style the add button
     addBtn.setAttribute('part', 'add-button');
 
     if (actionBar) {
@@ -1647,6 +1720,8 @@ class EditArray extends HTMLElement {
     }
     if (name === "array-field") this.render();
     if (name === "restore-label") this.updateRestoreButtonLabels();
+    if (name === 'primitive-array') this.render();
+    // For action-bar-justify, CSS handles layout; no re-render required.
   }
 
   connectedCallback(): void {
@@ -1686,7 +1761,11 @@ class EditArray extends HTMLElement {
   private setElementNameIfNeeded(element: HTMLElement, name: string, prefix: string | null): void {
     if (!name) return;
     if (prefix && !name.includes(this.arrayField || '')) {
-      element.setAttribute("name", `${prefix}.${name}`);
+      if (this.primitiveArray && name === 'value') {
+        element.setAttribute("name", `${prefix}`);
+      } else {
+        element.setAttribute("name", `${prefix}.${name}`);
+      }
     }
   }
 

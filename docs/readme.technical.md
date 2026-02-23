@@ -21,6 +21,17 @@ The EditArray component follows modern web component best practices with a focus
 - Shadow DOM: constructable stylesheets (with fallback), container structure, slotted content  
 - Light DOM (slots): display template, edit template
 
+### Implementation Notes for Current Version
+
+- Shadow DOM is constructed programmatically using `document.createElement` to avoid HTML injection via strings.
+- Slot content should be provided as regular elements (for example, `div` with `slot="display"`), not `<template>` tags. The component clones the slotted element directly.
+- A `slot="buttons"` can be provided to customize per-item buttons. Provide `<button data-action="edit">` and/or `<button data-action="delete">` inside that slotted element; the component enhances them per item.
+- Action buttons now expose a `part` attribute so consuming pages can style individual buttons via `::part()`. Available parts: `edit-button`, `delete-button`, `add-button`, `cancel-button`.
+- The action bar container itself is exposed via the `part="action-bar"` attribute so you can style the whole button area using `ck-edit-array::part(action-bar)`.
+  Additionally, the `action-bar-justify` attribute controls the internal flex alignment without needing external CSS (maps to `justify-content`).
+- There is no `theme` attribute. Theming is achieved entirely via CSS custom properties exposed by the component.
+- The `item-direction` attribute/property toggles per-item layout between column (default) and row using a `:host([item-direction="row"])` selector in the shadow stylesheet.
+
 ## Implementation Details
 
 ### CSS Architecture: Constructable Stylesheets with Safari Fallback
@@ -74,20 +85,45 @@ const applyEditArrayStyles = (shadowRoot) => {
 - The base `.edit-array-item` flex container pins `justify-content: space-between` so content and controls stay balanced.
 - The `item-direction` attribute/property toggles between column (default) and row layouts by flipping `flex-direction`.
 
+#### Action Bar Justification
+
+- The `.action-bar` container is a flex row with a gap and default `justify-content: flex-start`.
+- The `action-bar-justify` attribute supports: `start`, `center`, `end`, `space-between`, `space-around`, `space-evenly`.
+- Each value maps to its corresponding `justify-content` value (e.g., `start` → `flex-start`).
+- Implemented via `:host([action-bar-justify="..."]) .action-bar { justify-content: ... }` selectors in the constructable stylesheet.
+
+#### Primitive array naming mode
+
+- A boolean attribute `primitive-array` toggles name generation for arrays of primitives. When enabled, the name binding logic in both edit and display template processing collapses `prefix.value` to just `prefix` for controls named `value`. Data binding still uses `data-name="value"` for update events.
+
 ### Shadow DOM Strategy
 
 ```javascript
 constructor() {
   super();
-  const shadow = this.attachShadow({ mode: "open" });
-  
-  shadow.innerHTML = `
-    <div class="edit-array-container" id="${this.id}" role="region" aria-label="Array editor">
-      <div class="edit-array-items" role="list" aria-label="Editable items"></div>
-      <div class="action-bar"></div>
-    </div>
-  `;
-  
+  const shadow = this.attachShadow({ mode: 'open' });
+
+  // Programmatic DOM construction (avoids injecting HTML strings)
+  const container = document.createElement('div');
+  container.className = 'edit-array-container';
+  if (this.id) container.setAttribute('id', this.id);
+  container.setAttribute('role', 'region');
+  container.setAttribute('aria-label', 'Array editor');
+
+  const items = document.createElement('div');
+  items.className = 'edit-array-items';
+  items.setAttribute('role', 'list');
+  items.setAttribute('aria-label', 'Editable items');
+
+  const actionBar = document.createElement('div');
+  actionBar.className = 'action-bar';
+  // expose part for external styling
+  actionBar.setAttribute('part', 'action-bar');
+
+  container.appendChild(items);
+  container.appendChild(actionBar);
+  shadow.appendChild(container);
+
   applyEditArrayStyles(shadow);
 }
 ```
@@ -103,7 +139,8 @@ Delegated event handling example:
 
 ```javascript
 class EditArray extends HTMLElement {
-  #onInput = (event) => {
+  // In current source this is a private class field: `private onInput = (event: Event) => { ... }`
+  onInput = (event) => {
     const t = event.target;
     if (!t) return;
     
@@ -117,7 +154,7 @@ class EditArray extends HTMLElement {
     this.updateRecord(index, name, t.value);
   };
 
-  #onDelegatedClick = (event) => {
+  onDelegatedClick = (event) => {
     const target = event.target;
     const action = target.getAttribute('data-action');
     if (!action) return;
@@ -131,15 +168,15 @@ class EditArray extends HTMLElement {
   };
 
   connectedCallback() {
-    this.shadowRoot.addEventListener("input", this.#onInput);
-    this.shadowRoot.addEventListener("click", this.#onDelegatedClick);
+    this.shadowRoot.addEventListener('input', this.onInput);
+    this.shadowRoot.addEventListener('click', this.onDelegatedClick);
     this.render();
   }
 
   disconnectedCallback() {
     if (this.shadowRoot) {
-      this.shadowRoot.removeEventListener("input", this.#onInput);
-      this.shadowRoot.removeEventListener("click", this.#onDelegatedClick);
+      this.shadowRoot.removeEventListener('input', this.onInput);
+      this.shadowRoot.removeEventListener('click', this.onDelegatedClick);
     }
   }
 }
@@ -368,7 +405,17 @@ Memory management: explicit removal of listeners in disconnectedCallback.
 
 ### Accessibility Implementation
 
-ARIA integration and focus management examples included to ensure screen-reader and keyboard usability.
+ARIA integration and focus management are implemented. Error message elements are dynamically inserted adjacent to inputs with `role="alert"` and `aria-live="polite"`. Invalid inputs add `aria-invalid` and `aria-describedby` attributes; messages clear when the field becomes valid.
+
+#### Shadow parts
+
+To support fine‑grained styling from outside the shadow DOM, the component exposes these parts:
+
+- `action-bar` – container that holds the global action buttons (e.g., Add)
+- `add-button` – global Add button
+- `edit-button` – per‑item Edit/Save toggle button
+- `delete-button` – per‑item Delete/Restore toggle button
+- `cancel-button` – per‑item Cancel button (for brand‑new empty items)
 
 ### Security Considerations
 

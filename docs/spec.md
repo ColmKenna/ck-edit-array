@@ -2,9 +2,9 @@
 
 **Version**: 1.1.0  
 **Status**: Release Candidate  
-**Last Updated**: 2024  
+**Last Updated**: 2025  
 
-## ðŸ“‹ Component Overview
+## Component Overview
 
 ### Purpose
 
@@ -31,7 +31,7 @@ This specification defines:
 - âœ… **Theming**: CSS custom properties with multiple built-in themes
 - âœ… **Event System**: Comprehensive custom events for integration
 
-## ðŸŽ¯ Requirements
+## Requirements
 
 ### Functional Requirements
 
@@ -127,7 +127,7 @@ This specification defines:
   - CSP-compatible implementation
   - Safe event handling patterns
 
-## ðŸ”Œ API Specification
+## API Specification
 
 ### Custom Element Definition
 
@@ -135,17 +135,22 @@ This specification defines:
 <ck-edit-array
   data='[{"name": "John", "email": "john@example.com"}]'
   array-field="users"
-  theme="light"
 >
-  <template slot="display">
+  <div slot="display">
     <strong data-display-for="name"></strong>
     <span data-display-for="email"></span>
-  </template>
+  </div>
   
-  <template slot="edit">
+  <div slot="edit">
     <input type="text" name="name" placeholder="Full Name" required>
     <input type="email" name="email" placeholder="Email Address" required>
-  </template>
+  </div>
+
+  <!-- Optional custom buttons slot -->
+  <div slot="buttons">
+    <button data-action="edit" class="btn btn-sm">Edit</button>
+    <button data-action="delete" class="btn btn-sm">Delete</button>
+  </div>
 </ck-edit-array>
 ```
 
@@ -165,12 +170,11 @@ This specification defines:
 - **Validation**: Sanitized to remove unsafe characters
 - **Usage**: When set, generates names like `users[0].name`
 
-#### `theme: string`
-- **Type**: String
-- **Default**: `"light"`
-- **Description**: Visual theme for component styling
-- **Valid Values**: `"light"`, `"dark"`, `"forest-green"`, `"warm-sunset"`
-- **Reactivity**: Changes apply immediately
+#### `itemDirection: 'row' | 'column'`
+- **Type**: String union
+- **Default**: `"column"`
+- **Description**: Controls flex direction of each `.edit-array-item` in the shadow DOM
+- **Reactivity**: Setting property or `item-direction` attribute to `row` applies row layout
 
 ### Methods
 
@@ -182,13 +186,13 @@ This specification defines:
 - **Side Effects**: Triggers `item-added` and `change` events
 - **Example**: `editArray.addItem({ name: '', email: '' })`
 
-#### `deleteItem(index: number): boolean`
+#### `removeItem(index: number): Object | null`
 - **Description**: Removes an item from the array
 - **Parameters**: 
   - `index`: Zero-based index of item to remove
-- **Returns**: `true` if successful, `false` if index invalid
+- **Returns**: Removed item object or `null` if invalid index
 - **Side Effects**: Triggers `item-deleted` and `change` events
-- **Example**: `editArray.deleteItem(0)`
+- **Example**: `editArray.removeItem(0)`
 
 #### `updateItem(index: number, fieldName: string, value: any): boolean`
 - **Description**: Updates a specific field of an existing item
@@ -236,7 +240,7 @@ This specification defines:
 - **Type**: CustomEvent
 - **Bubbles**: Yes  
 - **Composed**: Yes
-- **Detail**: `{ item: Object, index: number, field: string, value: any }`
+- **Detail**: `{ index: number, fieldName: string, value: any, oldValue: any, item: Object, data: Array<Object> }`
 - **Fired When**: Existing item field is modified
 - **Example**:
   ```javascript
@@ -258,6 +262,19 @@ This specification defines:
   });
   ```
 
+#### `item-change`
+- **Type**: CustomEvent
+- **Bubbles**: Yes
+- **Composed**: Yes
+- **Detail**: `{ index: number, action: string, marked?: boolean, item: Object, data: Array<Object> }`
+- **Fired When**: An item’s deletion state is toggled via delete/restore
+```javascript
+editArray.addEventListener('item-change', (e) => {
+  const { index, action, marked } = e.detail;
+  console.log(`Item ${index} ${action} → marked=${marked}`);
+});
+```
+
 ### Attributes
 
 #### `data`
@@ -270,10 +287,7 @@ This specification defines:
 - **Observer**: Updates form field naming
 - **Sanitization**: Removes unsafe characters for DOM safety
 
-#### `theme`
-- **Reflects**: Property value
-- **Observer**: Updates CSS class for theming
-- **Validation**: Invalid themes fall back to "light"
+There is no `theme` attribute. Theming is accomplished through CSS custom properties applied to the host or document.
 
 #### `item-direction`
   - **Reflects**: Property value (`"row"` or `"column"`)
@@ -320,14 +334,53 @@ ck-edit-array::part(edit-container) {
 
 > See the [interactive styling demo](../examples/demo-styling.html) for live examples of these parts in action.
 
-## ðŸŽ¨ Slot Specification
+#### `action-bar-justify`
+- **Type**: `'start' | 'center' | 'end' | 'space-between' | 'space-around' | 'space-evenly'`
+- **Default**: `'start'`
+- **Reflects**: Attribute and property
+- **Observer**: CSS-based; no re-render required
+- **Description**: Controls `justify-content` of the `.action-bar` flex container used for global actions (e.g., Add button)
+
+#### `restore-label`
+- **Type**: String
+- **Default**: `"Restore"`
+- **Observed**: Yes
+- **Description**: Updates the text and ARIA labels of delete/restore buttons for items currently marked as deleted.
+
+#### Label attributes (not observed)
+#### `primitive-array`
+- Type: Boolean attribute
+- Default: not present (false)
+- Observed: Yes (triggers re-render)
+- Description: When present, the component treats each item as a primitive value for the purposes of generated form names. Inputs named `value` will be emitted as `arrayField[index]` (no `.value` suffix). Without this attribute, names follow the object convention `arrayField[index].value`.
+
+Example:
+
+```html
+<ck-edit-array array-field="client.uris" primitive-array>
+  <div slot="display">
+    <span data-display-for="value"></span>
+  </div>
+  <div slot="edit">
+    <input name="value" type="url" required />
+  </div>
+</ck-edit-array>
+```
+- `edit-label` (default: `"Edit"`) – Label for per‑item edit button
+- `save-label` (default: `"Save"`) – Label shown on the edit button while in edit mode
+- `delete-label` (default: `"Delete"`) – Label for per‑item delete button when not marked deleted
+- `cancel-label` (default: `"Cancel"`) – Label for per‑item cancel button for brand‑new empty items
+
+Note: These labels are read when items/buttons are rendered or when edit mode toggles. Changing them after render will not update existing buttons automatically (except `restore-label`).
+
+## Slot Specification
 
 ### Display Slot (`slot="display"`)
 
 **Purpose**: Defines the read-only appearance of array items
 
 **Requirements**:
-- MUST contain a `<template>` element
+- Provide an element in light DOM with `slot="display"`
 - SHOULD use `data-display-for` attributes for field binding
 - MAY contain arbitrary HTML structure
 - MUST NOT contain form controls
@@ -353,7 +406,15 @@ ck-edit-array::part(edit-container) {
 **Purpose**: Defines the editable form interface for array items
 
 **Requirements**:
-- MUST contain a `<template>` element  
+- Provide an element in light DOM with `slot="edit"`  
+### Buttons Slot (`slot="buttons")`
+
+Provide an optional element in light DOM with `slot="buttons"` that contains button templates with `data-action` attributes:
+
+- `data-action="edit"` – template for the per-item edit/save toggle button
+- `data-action="delete"` – template for the per-item delete/restore toggle button
+
+The component will clone and enhance these templates for each item, preserving your custom markup and classes while adding required attributes (`data-index`, ARIA labels) and behavior. Enhanced buttons also expose a `part` attribute so you can style them via `::part(edit-button)` and `::part(delete-button)`.
 - SHOULD contain form controls (`<input>`, `<select>`, `<textarea>`)
 - MUST use `name` attributes for field identification
 - MAY include validation attributes
@@ -381,7 +442,7 @@ ck-edit-array::part(edit-container) {
 4. Existing values are populated into form controls
 5. IDs are made unique to prevent conflicts
 
-## ðŸŽ¯ Validation Specification
+## Validation Specification
 
 ### HTML5 Validation Support
 
@@ -399,12 +460,12 @@ The component provides enhanced error messages:
 
 ```javascript
 // Type mismatch examples
-type="email" â†’ "Please enter a valid email address. Example: user@example.com"
-type="url" â†’ "Please enter a valid URL. Example: https://www.example.com"
-type="tel" â†’ "Please enter a valid phone number. Example: (555) 123-4567"
+type="email" → "Please enter a valid email address. Example: user@example.com"
+type="url" → "Please enter a valid URL. Example: https://www.example.com"
+type="tel" → "Please enter a valid phone number. Example: (555) 123-4567"
 
 // Pattern mismatch with placeholder
-pattern="[0-9]{5}" placeholder="12345" â†’ "Please match the required format. Example: 12345"
+pattern="[0-9]{5}" placeholder="12345" → "Please match the required format. Example: 12345"
 ```
 
 ### Validation State Management
@@ -419,7 +480,7 @@ pattern="[0-9]{5}" placeholder="12345" â†’ "Please match the required forma
 - `aria-describedby`: Links controls to error message elements
 - Error messages are announced to screen readers
 
-## â™¿ Accessibility Specification
+## Accessibility Specification
 
 ### WCAG 2.1 AA Compliance
 
@@ -459,7 +520,7 @@ pattern="[0-9]{5}" placeholder="12345" â†’ "Please match the required forma
 </div>
 ```
 
-## ðŸ”’ Security Specification
+## Security Specification
 
 ### XSS Prevention
 
@@ -497,7 +558,7 @@ The component is compatible with strict Content Security Policies:
 - **No inline scripts**: No script element creation or modification
 - **Safe event handling**: Uses standard DOM APIs exclusively
 
-## ðŸ§ª Testing Requirements
+## Testing Requirements
 
 ### Unit Testing Coverage
 
@@ -534,7 +595,7 @@ The component is compatible with strict Content Security Policies:
 - Delete item operation: < 50ms
 - Memory usage: Linear growth with data size
 
-## ðŸŒ Browser Compatibility
+## Browser Compatibility
 
 ### Supported Browsers
 
@@ -564,33 +625,33 @@ const supportsCustomElements =
 ### Graceful Degradation
 
 **Missing Features**:
-- Constructable Stylesheets â†’ Style element fallback
-- Custom Elements â†’ Polyfill recommendation
-- Shadow DOM â†’ Light DOM fallback (external implementation)
+- Constructable Stylesheets → Style element fallback
+- Custom Elements → Polyfill recommendation
+- Shadow DOM → Light DOM fallback (external implementation)
 
-## ðŸ“¦ Distribution Specification
+## Distribution Specification
 
 ### Package Structure
 
 ```
 edit-array/
-â”œâ”€â”€ src/
-â”‚   â”œâ”€â”€ ck-edit-array.js          # Main component
-â”‚   â””â”€â”€ ck-edit-array.d.ts        # TypeScript definitions
-â”œâ”€â”€ dist/
-â”‚   â”œâ”€â”€ edit-array.min.js      # Minified version
-â”‚   â””â”€â”€ edit-array.esm.js      # ES module build
-â”œâ”€â”€ examples/
-â”‚   â””â”€â”€ demo.html              # Interactive demo
-â”œâ”€â”€ tests/
-â”‚   â”œâ”€â”€ edit-array.test.js     # Unit tests
-â”‚   â”œâ”€â”€ edit-array.visual.test.js    # Visual tests
-â”‚   â”œâ”€â”€ edit-array.accessibility.test.js # A11y tests
-â”‚   â””â”€â”€ edit-array.performance.test.js   # Performance tests
-â””â”€â”€ docs/
-    â”œâ”€â”€ README.md              # User documentation
-    â”œâ”€â”€ readme.technical.md    # Technical guide
-    â””â”€â”€ spec.md               # This specification
+├── src/
+│   ├── ck-edit-array.js          # Main component
+│   └── ck-edit-array.d.ts        # TypeScript definitions
+├── dist/
+│   ├── edit-array.min.js         # Minified version
+│   └── edit-array.esm.js         # ES module build
+├── examples/
+│   └── demo.html                 # Interactive demo
+├── tests/
+│   ├── edit-array.test.js        # Unit tests
+│   ├── edit-array.visual.test.js # Visual tests
+│   ├── edit-array.accessibility.test.js # A11y tests
+│   └── edit-array.performance.test.js   # Performance tests
+└── docs/
+  ├── README.md                 # User documentation
+  ├── readme.technical.md       # Technical guide
+  └── spec.md                   # This specification
 ```
 
 ### Build Requirements
@@ -615,7 +676,7 @@ edit-array/
 - Module: `src/ck-edit-array.js`
 - Types: `src/ck-edit-array.d.ts`
 
-## ðŸ”„ Versioning
+## Versioning
 
 ### Semantic Versioning
 
